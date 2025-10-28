@@ -1,4 +1,4 @@
-# Subgrid Physics Emulator
+# Emulator for Cosmological simulations with hydrodynamical effects and subgrid physics. 
 
 A Python package for fast emulation of cosmological hydrodynamical simulation outputs using Gaussian Process emulators trained on the HACC simulation suite.
 
@@ -243,24 +243,3 @@ Pre-trained model files are included in `subgrid_emu/models/`:
 - numpy
 - scipy
 - sepia-lanl (SEPIA package for Gaussian Process emulation)
-
-## Citation
-
-If you use this package in your research, please cite:
-
-```
-[Citation information to be added]
-```
-
-## License
-
-[License information to be added]
-
-## Contact
-
-For questions or issues, please contact:
-- Nesar Ramachandra
-
-## Acknowledgments
-
-This work is based on simulations run on [computing facility] and uses the SEPIA framework developed at Los Alamos National Laboratory.
