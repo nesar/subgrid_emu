@@ -1,0 +1,301 @@
+"""
+Subgrid Physics Emulator
+
+This module provides a clean interface for loading and using trained emulators
+for various cosmological summary statistics.
+"""
+
+import numpy as np
+import os
+import pkg_resources
+from sepia.SepiaModel import SepiaModel
+from sepia.SepiaData import SepiaData
+from sepia.SepiaPredict import SepiaEmulatorPrediction
+
+
+# Physical parameter scaling factors
+SEED_MASS_SCALE = 1e6
+VKIN_SCALE = 1e4
+EPS_SCALE = 1e1
+
+# Parameter names for display
+PARAM_NAMES = [
+    r'$\kappa_\text{w}$', 
+    r'$e_\text{w}$', 
+    r'$M_\text{seed}/10^{6}$', 
+    r'$v_\text{kin}/10^{4}$', 
+    r'$\epsilon_\text{kin}/10^{1}$'
+]
+
+# Available summary statistics
+AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'CGED', 'Pk', 'CSFR']
+AVAILABLE_STATS_2P = ['CGD_2p', 'CGD_CC_2p', 'fGas_2p']
+
+
+def get_model_path(stat_name, z_index=0):
+    """
+    Get the path to a trained model file.
+    
+    Parameters
+    ----------
+    stat_name : str
+        Name of the summary statistic (e.g., 'GSMF', 'fGas', 'CGD')
+    z_index : int, optional
+        Redshift index (default: 0 for z=0)
+        
+    Returns
+    -------
+    str
+        Full path to the model file
+    """
+    model_filename = f"{stat_name}_multivariate_model_z_index{z_index}.pkl"
+    
+    try:
+        # Try to get from installed package
+        model_path = pkg_resources.resource_filename(
+            'subgrid_emu', 
+            f'models/{model_filename}'
+        )
+    except:
+        # Fallback to relative path
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(current_dir, 'models', model_filename)
+    
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(
+            f"Model file not found: {model_path}\n"
+            f"Available statistics: {AVAILABLE_STATS_5P + AVAILABLE_STATS_2P}"
+        )
+    
+    return model_path
+
+
+def _do_pca(sepia_data, exp_variance=0.99):
+    """
+    Perform PCA on SEPIA data and create model.
+    
+    Parameters
+    ----------
+    sepia_data : SepiaData
+        Input data in SEPIA format
+    exp_variance : float
+        Explained variance threshold (default: 0.99)
+        
+    Returns
+    -------
+    SepiaModel
+        SEPIA model after PCA
+    """
+    sepia_data.transform_xt()
+    sepia_data.standardize_y()
+    sepia_data.create_K_basis(n_pc=exp_variance)
+    sepia_model = SepiaModel(sepia_data)
+    return sepia_model
+
+
+def _sepia_data_format(design, y_vals, y_ind):
+    """
+    Format data for SEPIA.
+    
+    Parameters
+    ----------
+    design : np.array
+        Parameter array of shape (num_simulation, num_params)
+    y_vals : np.array
+        Target values of shape (num_simulation, num_y_values)
+    y_ind : np.array
+        Independent variable values of shape (num_y_values,)
+        
+    Returns
+    -------
+    SepiaData
+        Formatted SEPIA data
+    """
+    return SepiaData(t_sim=design, y_sim=y_vals, y_ind_sim=y_ind)
+
+
+class SubgridEmulator:
+    """
+    Main emulator class for making predictions.
+    
+    This class loads trained emulator models and provides methods for
+    making predictions of various cosmological summary statistics.
+    
+    Parameters
+    ----------
+    stat_name : str
+        Name of the summary statistic to emulate
+    z_index : int, optional
+        Redshift index (default: 0)
+    exp_variance : float, optional
+        Explained variance for PCA (default: 0.95 for 5-param, 0.99 for 2-param)
+        
+    Attributes
+    ----------
+    stat_name : str
+        Name of the loaded statistic
+    model : SepiaModel
+        Loaded SEPIA model
+    n_params : int
+        Number of input parameters (5 or 2)
+    """
+    
+    def __init__(self, stat_name, z_index=0, exp_variance=None):
+        self.stat_name = stat_name
+        self.z_index = z_index
+        
+        # Determine number of parameters and default variance
+        if stat_name in AVAILABLE_STATS_2P:
+            self.n_params = 2
+            if exp_variance is None:
+                exp_variance = 0.99
+        elif stat_name in AVAILABLE_STATS_5P:
+            self.n_params = 5
+            if exp_variance is None:
+                exp_variance = 0.95
+        else:
+            raise ValueError(
+                f"Unknown statistic: {stat_name}\n"
+                f"Available: {AVAILABLE_STATS_5P + AVAILABLE_STATS_2P}"
+            )
+        
+        self.exp_variance = exp_variance
+        self.model = None
+        self._load_model()
+    
+    def _load_model(self):
+        """Load the trained model from disk."""
+        model_path = get_model_path(self.stat_name, self.z_index)
+        
+        # Create a minimal SepiaData object with the correct structure
+        # The actual data values don't matter since restore_model_info will overwrite everything
+        if self.n_params == 5:
+            # 5-parameter model: create minimal dummy data
+            dummy_design = np.zeros((2, 5))
+            dummy_y = np.zeros((2, 10))
+            dummy_y_ind = np.linspace(0, 1, 10)
+        else:  # 2-parameter model
+            dummy_design = np.zeros((2, 2))
+            dummy_y = np.zeros((2, 10))
+            dummy_y_ind = np.linspace(0, 1, 10)
+        
+        # Create SepiaData - just the basic structure, no PCA
+        sepia_data = _sepia_data_format(dummy_design, dummy_y, dummy_y_ind)
+        
+        # Create SepiaModel without doing PCA
+        # The restore_model_info will load all the trained parameters including PCA basis
+        sepia_model = SepiaModel(sepia_data)
+        
+        # Restore the actual trained model parameters
+        # restore_model_info expects the path without the .pkl extension
+        model_path_base = model_path.replace('.pkl', '')
+        sepia_model.restore_model_info(model_path_base)
+        
+        self.model = sepia_model
+    
+    def predict(self, params, num_samples=100):
+        """
+        Make predictions for given parameters.
+        
+        Parameters
+        ----------
+        params : np.array
+            Input parameters. Can be:
+            - 1D array of shape (n_params,) for single prediction
+            - 2D array of shape (n_pred, n_params) for multiple predictions
+            For 5-parameter models: [kappa, e_gw, seed_mass, vkin, eps]
+            For 2-parameter models: [vkin, eps]
+            Note: Parameters should be in scaled units (see PARAM_NAMES)
+        num_samples : int, optional
+            Number of posterior samples to use (default: 100)
+            
+        Returns
+        -------
+        pred_mean : np.array
+            Mean prediction
+        pred_quantiles : np.array
+            Prediction quantiles [0.05, 0.95] for uncertainty
+            
+        Examples
+        --------
+        >>> emu = SubgridEmulator('GSMF')
+        >>> params = np.array([3.0, 0.5, 0.8, 0.65, 0.1])
+        >>> mean, quantiles = emu.predict(params)
+        """
+        if self.model is None:
+            raise RuntimeError("Model not loaded. Call _load_model() first.")
+        
+        # Ensure params is 2D
+        params = np.atleast_2d(params)
+        
+        if params.shape[1] != self.n_params:
+            raise ValueError(
+                f"Expected {self.n_params} parameters, got {params.shape[1]}"
+            )
+        
+        # Get posterior samples
+        pred_samples = self.model.get_samples(numsamples=num_samples)
+        
+        # Make prediction
+        pred = SepiaEmulatorPrediction(
+            t_pred=params, 
+            samples=pred_samples, 
+            model=self.model
+        )
+        
+        # Get prediction samples
+        pred_samps = pred.get_y()
+        
+        # Calculate statistics
+        pred_mean = np.mean(pred_samps, axis=0).T
+        pred_quantiles = np.quantile(pred_samps, [0.05, 0.95], axis=0).T
+        
+        return pred_mean, pred_quantiles
+    
+    def __repr__(self):
+        return (
+            f"SubgridEmulator(stat_name='{self.stat_name}', "
+            f"z_index={self.z_index}, n_params={self.n_params})"
+        )
+
+
+def load_emulator(stat_name, z_index=0, exp_variance=None):
+    """
+    Convenience function to load an emulator.
+    
+    Parameters
+    ----------
+    stat_name : str
+        Name of the summary statistic
+    z_index : int, optional
+        Redshift index (default: 0)
+    exp_variance : float, optional
+        Explained variance for PCA
+        
+    Returns
+    -------
+    SubgridEmulator
+        Loaded emulator ready for predictions
+        
+    Examples
+    --------
+    >>> emu = load_emulator('GSMF')
+    >>> params = [3.0, 0.5, 0.8, 0.65, 0.1]
+    >>> mean, quantiles = emu.predict(params)
+    """
+    return SubgridEmulator(stat_name, z_index, exp_variance)
+
+
+def list_available_statistics():
+    """
+    List all available summary statistics.
+    
+    Returns
+    -------
+    dict
+        Dictionary with '5-parameter' and '2-parameter' keys
+    """
+    return {
+        '5-parameter': AVAILABLE_STATS_5P,
+        '2-parameter': AVAILABLE_STATS_2P
+    }

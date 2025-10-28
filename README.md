@@ -1,0 +1,266 @@
+# Subgrid Physics Emulator
+
+A Python package for fast emulation of cosmological hydrodynamical simulation outputs using Gaussian Process emulators trained on the HACC simulation suite.
+
+## Overview
+
+This package provides trained emulators that can predict various cosmological summary statistics as a function of subgrid physics parameters, without needing to run expensive full hydrodynamical simulations. The emulators are based on Gaussian Processes and trained on a suite of 64 simulations with varying subgrid physics parameters.
+
+## Installation
+
+```bash
+cd subgrid_emu
+pip install -e .
+```
+
+## Quick Start
+
+```python
+from subgrid_emu import load_emulator, get_x_grid
+
+# Load an emulator for Galaxy Stellar Mass Function
+emu = load_emulator('GSMF')
+
+# Define subgrid physics parameters
+# [kappa_w, e_w, M_seed/1e6, v_kin/1e4, eps/1e1]
+params = [3.0, 0.5, 0.8, 0.65, 0.1]
+
+# Make prediction
+mean, quantiles = emu.predict(params)
+
+# Get the x-axis values (stellar masses in this case)
+x_grid, x_label = get_x_grid('GSMF')
+
+# Plot the result
+import matplotlib.pyplot as plt
+plt.figure(figsize=(8, 6))
+plt.plot(x_grid, mean, label='Prediction')
+plt.fill_between(x_grid, quantiles[:, 0], quantiles[:, 1], 
+                 alpha=0.3, label='90% CI')
+plt.xscale('log')
+plt.yscale('log')
+plt.xlabel(x_label)
+plt.ylabel('GSMF')
+plt.legend()
+plt.show()
+```
+
+## Available Summary Statistics
+
+### 5-Parameter Models
+These models use all 5 subgrid physics parameters:
+
+- **GSMF**: Galaxy Stellar Mass Function
+- **BHMSM**: Black Hole Mass - Stellar Mass relation
+- **fGas**: Cluster Gas Fraction
+- **CGD**: Cluster Gas Density profile
+- **CGED**: Cluster Gas Electron Density profile
+- **Pk**: Matter Power Spectrum ratio (hydro/gravity-only)
+- **CSFR**: Cosmic Star Formation Rate
+
+### 2-Parameter Models
+These models use only the last 2 parameters (v_kin, epsilon_kin):
+
+- **CGD_2p**: Cluster Gas Density profile (higher resolution)
+- **CGD_CC_2p**: Cluster Gas Density profile for Cool Core clusters
+- **fGas_2p**: Cluster Gas Fraction (higher resolution)
+
+## Input Parameters
+
+The emulators take 5 subgrid physics parameters (or 2 for the 2-parameter models):
+
+1. **κ_w** (kappa_w): Wind efficiency parameter [2.0 - 4.0]
+2. **e_w**: Wind energy fraction [0.2 - 1.0]
+3. **M_seed**: Black hole seed mass in units of 10^6 M_☉ [0.6 - 1.2]
+4. **v_kin**: Kinetic wind velocity in units of 10^4 km/s [0.1 - 1.2]
+5. **ε_kin** (epsilon_kin): Kinetic feedback efficiency in units of 10^1 [0.02 - 1.2]
+
+**Note**: Parameters should be provided in the scaled units shown above.
+
+## Examples
+
+### List Available Statistics
+
+```python
+from subgrid_emu import list_available_statistics
+
+stats = list_available_statistics()
+print("5-parameter models:", stats['5-parameter'])
+print("2-parameter models:", stats['2-parameter'])
+```
+
+### Get Parameter Information
+
+```python
+from subgrid_emu import get_parameter_info
+
+param_info = get_parameter_info()
+print("Parameter names:", param_info['names'])
+print("Parameter ranges:", param_info['ranges'])
+print("Descriptions:", param_info['descriptions'])
+```
+
+### Multiple Predictions
+
+```python
+import numpy as np
+from subgrid_emu import load_emulator
+
+# Load emulator
+emu = load_emulator('fGas')
+
+# Create a grid of parameters
+n_samples = 10
+params_grid = np.random.uniform(
+    low=[2.0, 0.2, 0.6, 0.1, 0.02],
+    high=[4.0, 1.0, 1.2, 1.2, 1.2],
+    size=(n_samples, 5)
+)
+
+# Make predictions for all parameter sets
+for i, params in enumerate(params_grid):
+    mean, quantiles = emu.predict(params)
+    print(f"Prediction {i+1}: mean shape = {mean.shape}")
+```
+
+### Using 2-Parameter Models
+
+```python
+from subgrid_emu import load_emulator
+
+# Load 2-parameter model
+emu = load_emulator('CGD_2p')
+
+# Only need last 2 parameters: [v_kin/1e4, eps/1e1]
+params_2p = [0.65, 0.1]
+
+mean, quantiles = emu.predict(params_2p)
+```
+
+### Plotting with Proper Labels
+
+```python
+from subgrid_emu import load_emulator, get_plot_info, get_x_grid
+import matplotlib.pyplot as plt
+
+# Load emulator
+emu = load_emulator('BHMSM')
+
+# Get plotting information
+plot_info = get_plot_info('BHMSM')
+x_grid, _ = get_x_grid('BHMSM')
+
+# Make prediction
+params = [3.0, 0.5, 0.8, 0.65, 0.1]
+mean, quantiles = emu.predict(params)
+
+# Plot with proper labels
+plt.figure(figsize=(8, 6))
+plt.plot(x_grid, mean, 'b-', lw=2)
+plt.fill_between(x_grid, quantiles[:, 0], quantiles[:, 1], 
+                 alpha=0.3, color='blue')
+plt.xscale(plot_info['xscale'])
+plt.yscale(plot_info['yscale'])
+plt.xlabel(plot_info['xlabel'])
+plt.ylabel(plot_info['ylabel'])
+plt.title(plot_info['title'])
+plt.grid(True, alpha=0.3)
+plt.show()
+```
+
+## API Reference
+
+### Main Functions
+
+#### `load_emulator(stat_name, z_index=0, exp_variance=None)`
+Load an emulator for a specific summary statistic.
+
+**Parameters:**
+- `stat_name` (str): Name of the summary statistic
+- `z_index` (int): Redshift index (default: 0 for z=0)
+- `exp_variance` (float): Explained variance for PCA (default: 0.95 for 5-param, 0.99 for 2-param)
+
+**Returns:**
+- `SubgridEmulator`: Loaded emulator object
+
+#### `SubgridEmulator.predict(params, num_samples=100)`
+Make predictions for given parameters.
+
+**Parameters:**
+- `params` (array-like): Input parameters (5 or 2 values depending on model)
+- `num_samples` (int): Number of posterior samples for uncertainty quantification
+
+**Returns:**
+- `mean` (np.array): Mean prediction
+- `quantiles` (np.array): [5%, 95%] prediction quantiles
+
+### Utility Functions
+
+#### `get_x_grid(stat_name)`
+Get the independent variable grid for a summary statistic.
+
+**Returns:**
+- `x_grid` (np.array): Grid values
+- `x_label` (str): Label for the x-axis
+
+#### `get_plot_info(stat_name)`
+Get plotting information (title, labels, scales).
+
+**Returns:**
+- `dict`: Dictionary with 'title', 'xlabel', 'ylabel', 'xscale', 'yscale'
+
+#### `get_valid_range(stat_name)`
+Get the valid/recommended range for predictions.
+
+**Returns:**
+- `tuple`: (min_value, max_value)
+
+#### `get_parameter_info()`
+Get detailed information about input parameters.
+
+**Returns:**
+- `dict`: Parameter names, ranges, descriptions, and scaling factors
+
+## Technical Details
+
+### Emulator Training
+
+The emulators are trained using:
+- **Method**: Gaussian Process regression via SEPIA (Simulation-Enabled Prediction, Inference, and Analysis)
+- **Training Data**: 64 simulations with Latin Hypercube Sampling in parameter space
+- **Dimensionality Reduction**: Principal Component Analysis (PCA)
+- **Uncertainty Quantification**: Posterior predictive distributions from GP
+
+### Model Files
+
+Pre-trained model files are included in `subgrid_emu/models/`:
+- Each model is stored as a pickle file (`.pkl`)
+- Models are automatically loaded when creating an emulator
+- File naming: `{STAT_NAME}_multivariate_model_z_index{Z}.pkl`
+
+## Dependencies
+
+- numpy
+- scipy
+- sepia-lanl (SEPIA package for Gaussian Process emulation)
+
+## Citation
+
+If you use this package in your research, please cite:
+
+```
+[Citation information to be added]
+```
+
+## License
+
+[License information to be added]
+
+## Contact
+
+For questions or issues, please contact:
+- Nesar Ramachandra
+
+## Acknowledgments
+
+This work is based on simulations run on [computing facility] and uses the SEPIA framework developed at Los Alamos National Laboratory.
