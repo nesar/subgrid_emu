@@ -167,26 +167,36 @@ class SubgridEmulator:
         """Load the trained model from disk."""
         model_path = get_model_path(self.stat_name, self.z_index)
         
-        # Create a minimal SepiaData object with the correct structure
-        # The actual data values don't matter since restore_model_info will overwrite everything
-        if self.n_params == 5:
-            # 5-parameter model: create minimal dummy data
-            dummy_design = np.zeros((2, 5))
-            dummy_y = np.zeros((2, 10))
-            dummy_y_ind = np.linspace(0, 1, 10)
-        else:  # 2-parameter model
-            dummy_design = np.zeros((2, 2))
-            dummy_y = np.zeros((2, 10))
-            dummy_y_ind = np.linspace(0, 1, 10)
+        # Load the training data that was used to create this model
+        data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+        base_name = f"{self.stat_name}_z_index{self.z_index}"
         
-        # Create SepiaData - just the basic structure, no PCA
-        sepia_data = _sepia_data_format(dummy_design, dummy_y, dummy_y_ind)
+        params_path = os.path.join(data_dir, f"{base_name}_params.npy")
+        y_vals_path = os.path.join(data_dir, f"{base_name}_y_vals.npy")
+        y_ind_path = os.path.join(data_dir, f"{base_name}_y_ind.npy")
         
-        # Create SepiaModel without doing PCA
-        # The restore_model_info will load all the trained parameters including PCA basis
-        sepia_model = SepiaModel(sepia_data)
+        # Check if training data exists
+        if not all(os.path.exists(p) for p in [params_path, y_vals_path, y_ind_path]):
+            raise FileNotFoundError(
+                f"Training data not found for {self.stat_name}. "
+                f"Expected files in {data_dir}:\n"
+                f"  - {base_name}_params.npy\n"
+                f"  - {base_name}_y_vals.npy\n"
+                f"  - {base_name}_y_ind.npy"
+            )
         
-        # Restore the actual trained model parameters
+        # Load training data
+        params = np.load(params_path)
+        y_vals = np.load(y_vals_path)
+        y_ind = np.load(y_ind_path)
+        
+        # Create SepiaData with the actual training data structure
+        sepia_data = _sepia_data_format(params, y_vals, y_ind)
+        
+        # Perform PCA (this recreates the basis used during training)
+        sepia_model = _do_pca(sepia_data, exp_variance=self.exp_variance)
+        
+        # Load the trained model parameters
         # restore_model_info expects the path without the .pkl extension
         model_path_base = model_path.replace('.pkl', '')
         sepia_model.restore_model_info(model_path_base)
@@ -249,6 +259,11 @@ class SubgridEmulator:
         # Calculate statistics
         pred_mean = np.mean(pred_samps, axis=0).T
         pred_quantiles = np.quantile(pred_samps, [0.05, 0.95], axis=0).T
+        
+        # Squeeze to remove extra dimensions for single predictions
+        if pred_mean.ndim > 1 and pred_mean.shape[1] == 1:
+            pred_mean = pred_mean.squeeze()
+            pred_quantiles = pred_quantiles.squeeze()
         
         return pred_mean, pred_quantiles
     

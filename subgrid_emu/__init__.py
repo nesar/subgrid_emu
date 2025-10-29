@@ -57,8 +57,7 @@ from .data_utils import (
     get_x_grid,
     get_plot_info,
     get_valid_range,
-    get_parameter_info,
-    get_delta_cgd
+    get_parameter_info
 )
 
 __all__ = [
@@ -80,5 +79,4 @@ __all__ = [
     'get_plot_info',
     'get_valid_range',
     'get_parameter_info',
-    'get_delta_cgd',
 ]

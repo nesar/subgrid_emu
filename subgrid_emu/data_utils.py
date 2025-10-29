@@ -6,16 +6,21 @@ for each summary statistic, as well as plotting utilities.
 """
 
 import numpy as np
+import os
 
 
-def get_x_grid(stat_name):
+def get_x_grid(stat_name, z_index=0):
     """
     Get the independent variable grid for a given summary statistic.
+    
+    This returns the actual x-grid used by the emulator (from training data).
     
     Parameters
     ----------
     stat_name : str
         Name of the summary statistic
+    z_index : int, optional
+        Redshift index (default: 0)
         
     Returns
     -------
@@ -31,56 +36,39 @@ def get_x_grid(stat_name):
     'Stellar mass [M_sun]'
     """
     
+    # Load the actual y_ind from training data
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+    base_name = f"{stat_name}_z_index{z_index}"
+    y_ind_path = os.path.join(data_dir, f"{base_name}_y_ind.npy")
+    
+    if os.path.exists(y_ind_path):
+        x_grid = np.load(y_ind_path)
+    else:
+        raise FileNotFoundError(
+            f"Training data not found for {stat_name}. "
+            f"Expected file: {y_ind_path}"
+        )
+    
+    # Get the label based on statistic type
     if stat_name == 'GSMF':
-        # Galaxy Stellar Mass Function
-        # Log-spaced stellar masses
-        x_grid = np.logspace(9, 12, 39)
         x_label = r'Stellar mass [$M_\odot$]'
         
     elif stat_name == 'BHMSM':
-        # Black Hole Mass - Stellar Mass relation
-        # Log stellar masses
-        x_grid = np.logspace(10, 12.5, 20)
         x_label = r'Stellar mass [$M_\odot$]'
         
     elif stat_name in ['fGas', 'fGas_2p']:
-        # Gas Fraction
-        # Log halo masses
-        x_grid = np.logspace(13.5, 14.5, 40)
         x_label = r'Halo mass $M_{500c}$ [$M_\odot$]'
         
-    elif stat_name in ['CGD', 'CGD_2p']:
-        # Cluster Gas Density profile
-        # Radial bins (r/R_500c)
-        log_radius = np.linspace(-2, 0.5, 21)
-        x_grid = 10**log_radius[1:]  # Skip first bin
-        x_label = r'Radius $r/R_{500c}$'
-        
-    elif stat_name == 'CGD_CC_2p':
-        # Cluster Gas Density profile (Cool Core)
-        log_radius = np.linspace(-2, 0.5, 21)
-        x_grid = 10**log_radius[1:]
+    elif stat_name in ['CGD', 'CGD_2p', 'CGD_CC_2p']:
         x_label = r'Radius $r/R_{500c}$'
         
     elif stat_name == 'CGED':
-        # Cluster Gas Electron Density profile
-        log_radius = np.linspace(-2, 0.5, 21)
-        x_grid = 10**log_radius[1:]
         x_label = r'Radius $r/R_{500c}$'
         
     elif stat_name == 'Pk':
-        # Power Spectrum
-        # Wavenumbers in h/Mpc
-        # Based on box size and resolution
-        k_min = 0.04908738521234052
-        k_max = 12.566370614359172
-        x_grid = np.logspace(np.log10(k_min), np.log10(k_max), 443)
         x_label = r'Wavenumber $k$ [$h$/Mpc]'
         
     elif stat_name == 'CSFR':
-        # Cosmic Star Formation Rate
-        # Scale factor
-        x_grid = np.linspace(0.1, 1.0, 655)
         x_label = r'Scale factor $a$'
         
     else:
@@ -274,30 +262,3 @@ def get_parameter_info():
             'epsilon_kin': 1e1
         }
     }
-
-
-def get_delta_cgd():
-    """
-    Get the resolution correction for CGD (Cluster Gas Density).
-    
-    This correction accounts for the difference between 128 Mpc and 256 Mpc
-    box simulations.
-    
-    Returns
-    -------
-    np.array
-        Correction values to add to 128 Mpc predictions
-    """
-    # This is the pre-computed difference between 256 Mpc and 128 Mpc runs
-    # for the fiducial parameters (EPS=2.4, VKIN=6300)
-    # Shape: (20,) corresponding to the radial bins
-    delta_cgd = np.array([
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
-    ])
-    
-    # Note: The actual values should be loaded from the data
-    # This is a placeholder - in practice, you'd load from a file
-    # or compute from the comparison simulations
-    
-    return delta_cgd
