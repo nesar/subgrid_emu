@@ -25,7 +25,7 @@ from subgrid_emu import load_emulator, get_x_grid
 emu = load_emulator('GSMF')
 
 # Define subgrid physics parameters
-# [kappa_w, e_w, M_seed/1e6, v_kin/1e4, eps/1e1]
+# [kappa_w, e_w, M_seed, v_kin, epsilon_kin] (in scaled units)
 params = [3.0, 0.5, 0.8, 0.65, 0.1]
 
 # Make prediction
@@ -50,31 +50,33 @@ plt.show()
 
 ## Available Summary Statistics
 
-### 5-Parameter Models
-These models use all 5 subgrid physics parameters:
+### 5-Parameter Models (smaller simulation box)
 
-- **GSMF**: Galaxy Stellar Mass Function
-- **BHMSM**: Black Hole Mass - Stellar Mass relation
-- **fGas**: Cluster Gas Fraction
-- **CGD**: Cluster Gas Density profile
-- **Pk**: Matter Power Spectrum ratio (hydro/gravity-only)
-- **CSFR**: Cosmic Star Formation Rate
+| Stat Name | LaTeX | Description |
+|-----------|-------|-------------|
+| GSMF | $\mathrm{d}n / \mathrm{d}\log_{10} M_{\mathrm{stars}} \left[1 / (h^{-1}\mathrm{Mpc})^3 \right]$ | Galaxy stellar mass function |
+| CGD | $\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$ | Cluster gas density |
+| fGas | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction |
+| BHMSM | $M_{\mathrm{BH}} [\mathrm{M}_{\odot}$] | Black hole mass-stellar mass |
+| CSFR | $\mathrm{CSFR}   [\mathrm{M}_{\odot}   \mathrm{yr}^{-1}   (h^{-1}\mathrm{Mpc})^{-3}]$ | Cosmic star formation rate |
+| Pk | $P_{\mathrm{sub}}(k) / P_{\mathrm{grav}}(k)$ | Total power spectra ratio |
 
-### 2-Parameter Models
-These models use only the last 2 parameters (v_kin, epsilon_kin):
+### 2-Parameter Models (larger simulation box)
 
-- **CGD_2p**: Cluster Gas Density profile (higher resolution)
-- **fGas_2p**: Cluster Gas Fraction (higher resolution)
+| Stat Name | LaTeX | Description |
+|-----------|-------|-------------|
+| CGD_2p | $\rho_{\mathrm{gas}}  /  \rho_{\mathrm{crit}}$ | Cluster gas density (higher resolution) |
+| fGas_2p | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction (higher resolution) |
 
 ## Input Parameters
 
-The emulators take 5 subgrid physics parameters (or 2 for the 2-parameter models):
-
-1. **κ_w** (kappa_w): Wind efficiency parameter [2.0 - 4.0]
-2. **e_w**: Wind energy fraction [0.2 - 1.0]
-3. **M_seed**: Black hole seed mass in units of 10^6 M_☉ [0.6 - 1.2]
-4. **v_kin**: Kinetic wind velocity in units of 10^4 km/s [0.1 - 1.2]
-5. **ε_kin** (epsilon_kin): Kinetic feedback efficiency in units of 10^1 [0.02 - 1.2]
+| # | Parameter | LaTeX | Range | Description |
+|---|-----------|-------|-------|-------------|
+| 1 | kappa_w | $\kappa_\text{w}$ | (2.0, 4.0) | Wind efficiency parameter |
+| 2 | e_w | $e_\text{w}$ | (0.2, 1.0) | Wind energy fraction |
+| 3 | M_seed | $M_\text{seed}/10^{6}$ | (0.6, 1.2) | Black hole seed mass (in 10^6 M_☉) |
+| 4 | v_kin | $v_\text{kin}/10^{4}$ | (0.1, 1.2) | Kinetic wind velocity (in 10^4 km/s) |
+| 5 | epsilon_kin | $\epsilon_\text{kin}/10^{1}$ | (0.02, 1.2) | Kinetic feedback efficiency (in 10^1) |
 
 **Note**: Parameters should be provided in the scaled units shown above.
 
@@ -132,7 +134,7 @@ from subgrid_emu import load_emulator
 # Load 2-parameter model
 emu = load_emulator('CGD_2p')
 
-# Only need last 2 parameters: [v_kin/1e4, eps/1e1]
+# Only need last 2 parameters: [v_kin, epsilon_kin] (in scaled units)
 params_2p = [0.65, 0.1]
 
 mean, quantiles = emu.predict(params_2p)
