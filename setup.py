@@ -26,7 +26,7 @@ setup(
     description="Gaussian Process emulators for cosmological hydrodynamical simulations",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/nesar/Hydro_runs",  # Update with actual URL
+    url="https://github.com/nesar/subgrid_emu",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -41,11 +41,13 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.7",
+    python_requires=">=3.9",
     install_requires=[
-        "numpy>=1.18.0",
-        "scipy>=1.4.0",
-        "sepia>=1.0.0",
+        "numpy==1.22.1",
+        "scipy==1.10.1",
+        "sepia @ git+https://github.com/lanl/SEPIA.git",
+        "matplotlib==3.8.2",
+        "pandas==1.5.2",
     ],
     extras_require={
         "dev": [
@@ -66,7 +68,7 @@ setup(
     zip_safe=False,
     keywords="cosmology emulator gaussian-process hydrodynamics simulations",
     project_urls={
-        "Bug Reports": "https://github.com/nesar/Hydro_runs/issues",
-        "Source": "https://github.com/nesar/Hydro_runs",
+        "Bug Reports": "https://github.com/nesar/subgrid_emu/issues",
+        "Source": "https://github.com/nesar/subgrid_emu",
     },
 )

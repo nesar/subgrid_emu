@@ -8,7 +8,10 @@ This package provides trained emulators that can predict various cosmological su
 
 ## Installation
 
+Clone the repository:
+
 ```bash
+git clone https://github.com/nesar/subgrid_emu.git
 cd subgrid_emu
 pip install -e .
 ```
@@ -54,7 +57,6 @@ These models use all 5 subgrid physics parameters:
 - **BHMSM**: Black Hole Mass - Stellar Mass relation
 - **fGas**: Cluster Gas Fraction
 - **CGD**: Cluster Gas Density profile
-- **CGED**: Cluster Gas Electron Density profile
 - **Pk**: Matter Power Spectrum ratio (hydro/gravity-only)
 - **CSFR**: Cosmic Star Formation Rate
 
@@ -62,7 +64,6 @@ These models use all 5 subgrid physics parameters:
 These models use only the last 2 parameters (v_kin, epsilon_kin):
 
 - **CGD_2p**: Cluster Gas Density profile (higher resolution)
-- **CGD_CC_2p**: Cluster Gas Density profile for Cool Core clusters
 - **fGas_2p**: Cluster Gas Fraction (higher resolution)
 
 ## Input Parameters
@@ -220,26 +221,3 @@ Get detailed information about input parameters.
 
 **Returns:**
 - `dict`: Parameter names, ranges, descriptions, and scaling factors
-
-## Technical Details
-
-### Emulator Training
-
-The emulators are trained using:
-- **Method**: Gaussian Process regression via SEPIA (Simulation-Enabled Prediction, Inference, and Analysis)
-- **Training Data**: 64 simulations with Latin Hypercube Sampling in parameter space
-- **Dimensionality Reduction**: Principal Component Analysis (PCA)
-- **Uncertainty Quantification**: Posterior predictive distributions from GP
-
-### Model Files
-
-Pre-trained model files are included in `subgrid_emu/models/`:
-- Each model is stored as a pickle file (`.pkl`)
-- Models are automatically loaded when creating an emulator
-- File naming: `{STAT_NAME}_multivariate_model_z_index{Z}.pkl`
-
-## Dependencies
-
-- numpy
-- scipy
-- sepia-lanl (SEPIA package for Gaussian Process emulation)

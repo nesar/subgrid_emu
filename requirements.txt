@@ -1,11 +1,11 @@
 # Core dependencies
-numpy>=1.18.0
-scipy>=1.4.0
-sepia>=1.0.0
+numpy==1.22.1
+scipy==1.10.1
+sepia @ git+https://github.com/lanl/SEPIA.git
 
 # Plotting dependencies
-matplotlib>=3.0
-pandas>=1.0.0
+matplotlib==3.8.2
+pandas==1.5.2
 
 # Development dependencies (optional)
 pytest>=6.0
