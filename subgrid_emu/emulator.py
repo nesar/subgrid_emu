@@ -28,8 +28,9 @@ PARAM_NAMES = [
 ]
 
 # Available summary statistics
-AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'Pk', 'CSFR']
-AVAILABLE_STATS_2P = ['CGD_2p', 'fGas_2p']
+# AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'Pk', 'CSFR']
+AVAILABLE_STATS_5P = ['GSMF', 'fGas', 'CGD', 'BHMSM', 'Pk', 'CSFR']
+AVAILABLE_STATS_2P = ['fGas_2p', 'CGD_2p']
 
 
 def get_model_path(stat_name, z_index=0):
@@ -148,7 +149,7 @@ class SubgridEmulator:
         if stat_name in AVAILABLE_STATS_2P:
             self.n_params = 2
             if exp_variance is None:
-                exp_variance = 0.99
+                exp_variance = 0.95
         elif stat_name in AVAILABLE_STATS_5P:
             self.n_params = 5
             if exp_variance is None:
