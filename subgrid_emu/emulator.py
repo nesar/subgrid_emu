@@ -29,8 +29,8 @@ PARAM_NAMES = [
 
 # Available summary statistics
 # AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'Pk', 'CSFR']
-AVAILABLE_STATS_5P = ['GSMF', 'fGas', 'CGD', 'BHMSM', 'Pk', 'CSFR']
-AVAILABLE_STATS_2P = ['fGas_2p', 'CGD_2p']
+AVAILABLE_STATS_5P = ['GSMF', 'CGD', 'fGas', 'BHMSM', 'CSFR', 'Pk']
+AVAILABLE_STATS_2P = ['CGD_2p', 'fGas_2p']
 
 
 def get_model_path(stat_name, z_index=0):
@@ -255,9 +255,16 @@ class SubgridEmulator:
         Returns
         -------
         pred_mean : np.array
-            Mean prediction
+            Mean prediction (with appropriate scaling applied)
         pred_quantiles : np.array
-            Prediction quantiles [0.05, 0.95] for uncertainty
+            Prediction quantiles [0.05, 0.95] for uncertainty (with appropriate scaling applied)
+            
+        Notes
+        -----
+        The predictions are automatically transformed to the correct physical units:
+        - GSMF: Transformed to log10 space
+        - BHMSM: Transformed from log10 to linear space (10**)
+        - Other statistics: Returned as-is
             
         Examples
         --------
@@ -288,6 +295,14 @@ class SubgridEmulator:
         
         # Get prediction samples
         pred_samps = pred.get_y()
+        
+        # Apply output transformations based on statistic type
+        # GSMF: emulator outputs linear values, transform to log10
+        if self.stat_name == 'GSMF':
+            pred_samps = np.log10(pred_samps)
+        # BHMSM: emulator outputs log10 values, transform to linear (10**)
+        elif self.stat_name == 'BHMSM':
+            pred_samps = 10**pred_samps
         
         # Calculate statistics
         pred_mean = np.mean(pred_samps, axis=0).T

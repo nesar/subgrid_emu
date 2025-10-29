@@ -123,7 +123,7 @@ def get_plot_info(stat_name):
             'xlabel': r"$M_{\mathrm{500c}} / h^{-1}\mathrm{M}_{\odot}$",
             'ylabel': r"$M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$",
             'xscale': 'log',
-            'yscale': 'log'
+            'yscale': 'linear'
         }
         
     elif stat_name in ['CGD', 'CGD_2p']:
