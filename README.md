@@ -1,10 +1,10 @@
-# Emulator for Cosmological simulations with hydrodynamical effects and subgrid physics. 
+# Emulator-suite for Cosmological summary statistics from hydrodynamical Cosmological simulation.  
 
-A Python package for fast emulation of cosmological hydrodynamical simulation outputs using Gaussian Process emulators trained on the HACC simulation suite.
+A Python package for fast emulation of cosmological hydrodynamical simulation outputs using Gaussian Process emulators trained on the CRK-HACC simulation suite.
 
 ## Overview
 
-This package provides trained emulators that can predict various cosmological summary statistics as a function of subgrid physics parameters, without needing to run expensive full hydrodynamical simulations. The emulators are based on Gaussian Processes and trained on a suite of 64 + 16 simulations of with varying subgrid physics parameters.
+This package provides trained emulators that predict various cosmological summary statistics as a function of subgrid physics parameters, without running expensive full-hydrodynamical simulations. The emulators are based on Gaussian Processes and trained on a suite of 64 + 16 simulations of with varying subgrid physics parameters.
 
 ## Installation
 
@@ -110,7 +110,7 @@ import numpy as np
 from subgrid_emu import load_emulator
 
 # Load emulator
-emu = load_emulator('fGas')
+emu = load_emulator('CSFR')
 
 # Create a grid of parameters
 n_samples = 10
@@ -140,36 +140,6 @@ params_2p = [0.65, 0.1]
 mean, quantiles = emu.predict(params_2p)
 ```
 
-### Plotting with Proper Labels
-
-```python
-from subgrid_emu import load_emulator, get_plot_info, get_x_grid
-import matplotlib.pyplot as plt
-
-# Load emulator
-emu = load_emulator('BHMSM')
-
-# Get plotting information
-plot_info = get_plot_info('BHMSM')
-x_grid, _ = get_x_grid('BHMSM')
-
-# Make prediction
-params = [3.0, 0.5, 0.8, 0.65, 0.1]
-mean, quantiles = emu.predict(params)
-
-# Plot with proper labels
-plt.figure(figsize=(8, 6))
-plt.plot(x_grid, mean, 'b-', lw=2)
-plt.fill_between(x_grid, quantiles[:, 0], quantiles[:, 1], 
-                 alpha=0.3, color='blue')
-plt.xscale(plot_info['xscale'])
-plt.yscale(plot_info['yscale'])
-plt.xlabel(plot_info['xlabel'])
-plt.ylabel(plot_info['ylabel'])
-plt.title(plot_info['title'])
-plt.grid(True, alpha=0.3)
-plt.show()
-```
 
 ## API Reference
 
@@ -213,7 +183,7 @@ Get plotting information (title, labels, scales).
 - `dict`: Dictionary with 'title', 'xlabel', 'ylabel', 'xscale', 'yscale'
 
 #### `get_valid_range(stat_name)`
-Get the valid/recommended range for predictions.
+Get the valid/recommended prediction range.
 
 **Returns:**
 - `tuple`: (min_value, max_value)
