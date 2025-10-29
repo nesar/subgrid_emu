@@ -30,11 +30,9 @@ Available summary statistics:
 - BHMSM: Black Hole Mass - Stellar Mass relation
 - fGas: Cluster Gas Fraction
 - CGD: Cluster Gas Density profile
-- CGED: Cluster Gas Electron Density profile
 - Pk: Matter Power Spectrum ratio (hydro/gravity-only)
 - CSFR: Cosmic Star Formation Rate
 - CGD_2p: Cluster Gas Density (2-parameter model)
-- CGD_CC_2p: Cluster Gas Density Cool Core (2-parameter model)
 - fGas_2p: Cluster Gas Fraction (2-parameter model)
 """
 

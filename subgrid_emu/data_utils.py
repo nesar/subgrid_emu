@@ -59,10 +59,7 @@ def get_x_grid(stat_name, z_index=0):
     elif stat_name in ['fGas', 'fGas_2p']:
         x_label = r'Halo mass $M_{500c}$ [$M_\odot$]'
         
-    elif stat_name in ['CGD', 'CGD_2p', 'CGD_CC_2p']:
-        x_label = r'Radius $r/R_{500c}$'
-        
-    elif stat_name == 'CGED':
+    elif stat_name in ['CGD', 'CGD_2p']:
         x_label = r'Radius $r/R_{500c}$'
         
     elif stat_name == 'Pk':
@@ -74,8 +71,8 @@ def get_x_grid(stat_name, z_index=0):
     else:
         raise ValueError(
             f"Unknown statistic: {stat_name}\n"
-            f"Available: GSMF, BHMSM, fGas, CGD, CGED, Pk, CSFR, "
-            f"CGD_2p, CGD_CC_2p, fGas_2p"
+            f"Available: GSMF, BHMSM, fGas, CGD, Pk, CSFR, "
+            f"CGD_2p, fGas_2p"
         )
     
     return x_grid, x_label
@@ -129,21 +126,11 @@ def get_plot_info(stat_name):
             'yscale': 'log'
         }
         
-    elif stat_name in ['CGD', 'CGD_2p', 'CGD_CC_2p']:
-        title_suffix = ' (Cool Core)' if stat_name == 'CGD_CC_2p' else ''
+    elif stat_name in ['CGD', 'CGD_2p']:
         return {
-            'title': f'Cluster gas density{title_suffix}',
+            'title': 'Cluster gas density',
             'xlabel': r"$r/R_{\mathrm{500c}}$",
             'ylabel': r"$\rho_{\mathrm{gas}} \,/\, \rho_{\mathrm{crit}}$",
-            'xscale': 'log',
-            'yscale': 'log'
-        }
-        
-    elif stat_name == 'CGED':
-        return {
-            'title': 'Cluster gas electron density',
-            'xlabel': r'$r / R_{\mathrm{500c}}$',
-            'ylabel': r'$n_{\mathrm{e}}$ [$\mathrm{cm}^{-3}$]',
             'xscale': 'log',
             'yscale': 'log'
         }
@@ -202,11 +189,8 @@ def get_valid_range(stat_name):
     elif stat_name in ['fGas', 'fGas_2p']:
         return (10**13.5, 10**14.3)
         
-    elif stat_name in ['CGD', 'CGD_2p', 'CGD_CC_2p']:
+    elif stat_name in ['CGD', 'CGD_2p']:
         return (0.015, 2.75)
-        
-    elif stat_name == 'CGED':
-        return (0.025, 1.2)
         
     elif stat_name == 'Pk':
         return (0.04908738521234052, 12.566370614359172)

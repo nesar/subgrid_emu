@@ -28,8 +28,8 @@ PARAM_NAMES = [
 ]
 
 # Available summary statistics
-AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'CGED', 'Pk', 'CSFR']
-AVAILABLE_STATS_2P = ['CGD_2p', 'CGD_CC_2p', 'fGas_2p']
+AVAILABLE_STATS_5P = ['GSMF', 'BHMSM', 'fGas', 'CGD', 'Pk', 'CSFR']
+AVAILABLE_STATS_2P = ['CGD_2p', 'fGas_2p']
 
 
 def get_model_path(stat_name, z_index=0):
@@ -199,7 +199,43 @@ class SubgridEmulator:
         # Load the trained model parameters
         # restore_model_info expects the path without the .pkl extension
         model_path_base = model_path.replace('.pkl', '')
-        sepia_model.restore_model_info(model_path_base)
+        
+        # For 2-parameter models, we need to use a workaround to avoid the SEPIA bug
+        # The bug occurs in logLik() which is called by restore_model_info()
+        if self.n_params == 2:
+            # Manually load and restore without calling logLik
+            import pickle
+            with open(model_path, 'rb') as f:
+                model_data = pickle.load(f)
+            
+            samples = model_data['samples']
+            param_info = model_data['param_info']
+            
+            # Restore parameter information (excluding logPost)
+            for p in sepia_model.params:
+                if p.name in param_info and p.name != 'logPost':
+                    info = param_info[p.name]
+                    p.fixed = info['fixed']
+                    p.prior.bounds = info['prior_bounds']
+                    p.prior.fcon = info['prior_fcon']
+                    p.prior.dist = info['prior_dist']
+                    p.prior.params = info['prior_params']
+                    p.mcmc.stepParam = info['mcmc_stepParam']
+                    p.mcmc.stepType = info['mcmc_stepType']
+            
+            # Put samples and current values back
+            for p in sepia_model.params:
+                if p.name in samples:
+                    p.val = np.take(samples[p.name], -1, axis=0)
+                    draws = [s for s in samples[p.name]]
+                    p.mcmc.draws = draws
+            
+            # Update the num structure - this is critical
+            sepia_model.num.pu = params.shape[1]
+            sepia_model.num.q = sepia_model.data.sim_data.K.shape[1]
+        else:
+            # For 5-parameter models, use the standard restore method
+            sepia_model.restore_model_info(model_path_base)
         
         self.model = sepia_model
     
