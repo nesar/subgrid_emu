@@ -32,7 +32,7 @@ TRAINING_GRIDS = {
         'exp_variance': 0.95
     },
     'Pk': {
-        'y_ind': np.logspace(np.log10(0.04908738521234052), np.log10(12.566370614359172), 443),
+        'y_ind': None,  # Loaded from data files (255 k-points after masking)
         'n_params': 5,
         'exp_variance': 0.95
     },

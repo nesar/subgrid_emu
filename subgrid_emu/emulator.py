@@ -200,10 +200,13 @@ class SubgridEmulator:
         # restore_model_info expects the path without the .pkl extension
         model_path_base = model_path.replace('.pkl', '')
         
-        # For 2-parameter models, we need to use a workaround to avoid the SEPIA bug
-        # The bug occurs in logLik() which is called by restore_model_info()
-        if self.n_params == 2:
-            # Manually load and restore without calling logLik
+        # Use the standard SEPIA restore method
+        # This works for all models when the PCA is done with the correct exp_variance
+        try:
+            sepia_model.restore_model_info(model_path_base)
+        except IndexError as e:
+            # If we get an IndexError during restore (SEPIA bug with single PCA component),
+            # manually load the model parameters
             import pickle
             with open(model_path, 'rb') as f:
                 model_data = pickle.load(f)
@@ -229,13 +232,6 @@ class SubgridEmulator:
                     p.val = np.take(samples[p.name], -1, axis=0)
                     draws = [s for s in samples[p.name]]
                     p.mcmc.draws = draws
-            
-            # Update the num structure - this is critical
-            sepia_model.num.pu = params.shape[1]
-            sepia_model.num.q = sepia_model.data.sim_data.K.shape[1]
-        else:
-            # For 5-parameter models, use the standard restore method
-            sepia_model.restore_model_info(model_path_base)
         
         self.model = sepia_model
     
