@@ -17,6 +17,10 @@ Fixed scaling issues in GSMF and BHMSM emulator outputs to ensure correct physic
     - Raw emulator output (log10) → `10**pred_samps`
     - This ensures BHMSM values are in linear space for plotting
   - Other statistics (fGas, CGD, Pk, CSFR) remain unchanged
+- **Modified**: `SubgridEmulator._load_model()` method
+- **Change**: Added warning suppression for SEPIA model loading
+  - Suppressed the "make sure this model was instantiated with the same input data" warning
+  - This is a benign warning since we correctly recreate the model structure
 
 #### 2. `subgrid_emu/data_utils.py`
 - **Modified**: `get_plot_info()` function for GSMF

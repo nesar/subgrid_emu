@@ -7,6 +7,9 @@ for various cosmological summary statistics.
 
 import numpy as np
 import os
+import sys
+import warnings
+from io import StringIO
 import pkg_resources
 from sepia.SepiaModel import SepiaModel
 from sepia.SepiaData import SepiaData
@@ -203,8 +206,15 @@ class SubgridEmulator:
         
         # Use the standard SEPIA restore method
         # This works for all models when the PCA is done with the correct exp_variance
+        # Suppress the warning about model instantiation (SEPIA uses print, not warnings)
         try:
-            sepia_model.restore_model_info(model_path_base)
+            # Redirect stdout to suppress print statements
+            old_stdout = sys.stdout
+            sys.stdout = StringIO()
+            try:
+                sepia_model.restore_model_info(model_path_base)
+            finally:
+                sys.stdout = old_stdout
         except IndexError as e:
             # If we get an IndexError during restore (SEPIA bug with single PCA component),
             # manually load the model parameters
