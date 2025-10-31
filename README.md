@@ -4,7 +4,7 @@ A Python package for fast emulation of cosmological hydrodynamical simulation ou
 
 ## Overview
 
-This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes) + 16 (2 subgrid parameters, larger boxes) simulations of with varying subgrid physics parameters.
+This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes) + 16 (2 subgrid parameters, larger boxes) simulations with varying subgrid physics parameters.
 
 ## Installation
 
@@ -126,6 +126,10 @@ for i, params in enumerate(params_grid):
     print(f"Prediction {i+1}: mean shape = {mean.shape}")
 ```
 
+The suite provides 6 summary statistics (from smaller simulations)
+
+<img width="1483" height="784" alt="output" src="https://github.com/user-attachments/assets/123b84e5-8a40-434d-a03e-496d365fe043" />
+
 ### Using 2-Parameter Models
 
 ```python
@@ -140,6 +144,8 @@ params_2p = [0.65, 0.1]
 mean, quantiles = emu.predict(params_2p)
 ```
 
+The suite includes 2 summary statistics from larger simulations. 
+<img width="1384" height="484" alt="output2" src="https://github.com/user-attachments/assets/0e46409f-da28-4479-842a-5e896b6e44ce" />
 
 
 
