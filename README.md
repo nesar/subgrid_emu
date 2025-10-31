@@ -4,7 +4,7 @@ A Python package for fast emulation of cosmological hydrodynamical simulation ou
 
 ## Overview
 
-This package provides trained emulators that predict various cosmological summary statistics as a function of subgrid physics parameters, without running expensive full-hydrodynamical simulations. The emulators are based on Gaussian Processes and trained on a suite of 64 + 16 simulations of with varying subgrid physics parameters.
+This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes) + 16 (2 subgrid parameters, larger boxes) simulations of with varying subgrid physics parameters.
 
 ## Installation
 
