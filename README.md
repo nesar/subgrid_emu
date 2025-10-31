@@ -52,7 +52,7 @@ plt.show()
 
 ### 5-Parameter Models (smaller simulation box)
 
-| Stat Name | LaTeX | Description |
+| Stat Name | Symbol | Description |
 |-----------|-------|-------------|
 | GSMF | $\mathrm{d}n / \mathrm{d}\log_{10} M_{\mathrm{stars}} \left[1 / (h^{-1}\mathrm{Mpc})^3 \right]$ | Galaxy stellar mass function |
 | CGD | $\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$ | Cluster gas density |
@@ -63,14 +63,14 @@ plt.show()
 
 ### 2-Parameter Models (larger simulation box)
 
-| Stat Name | LaTeX | Description |
+| Stat Name | Symbol | Description |
 |-----------|-------|-------------|
 | CGD_2p | $\rho_{\mathrm{gas}}  /  \rho_{\mathrm{crit}}$ | Cluster gas density (higher resolution) |
 | fGas_2p | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction (higher resolution) |
 
 ## Input Parameters
 
-| # | Parameter | LaTeX | Range | Description |
+| # | Parameter | Symbol (and Scaling) | Range | Description |
 |---|-----------|-------|-------|-------------|
 | 1 | kappa_w | $\kappa_\text{w}$ | (2.0, 4.0) | Wind efficiency parameter |
 | 2 | e_w | $e_\text{w}$ | (0.2, 1.0) | Wind energy fraction |
