@@ -1,10 +1,10 @@
-# Emulator-suite for Cosmological summary statistics from hydrodynamical Cosmological simulation.  
+# Emulator-suite for Astrophysical Summary Statistics from Hydrodynamical Cosmological Simulation.  
 
-A Python package for fast emulation of cosmological hydrodynamical simulation outputs using Gaussian Process emulators trained on the CRK-HACC simulation suite.
+A Python package for fast emulation of astrophysical quantities trained on the CRK-HACC simulation ensemble with varying subgrid physics. 
 
 ## Overview
 
-This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes) + 16 (2 subgrid parameters, larger boxes) simulations with varying subgrid physics parameters.
+This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes: $L = 128 h^{-1}\text{Mpc}$ and $2 \times 128^3$ particles) + 16 (2 subgrid parameters, larger boxes of $L = 256 h^{-1}\text{Mpc}$ and $2 \times 256^3$ particles) simulations with varying subgrid physics parameters.
 
 
 ## Available Summary Statistics
