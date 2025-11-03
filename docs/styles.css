@@ -198,15 +198,17 @@ td code {
 
 /* ===== Plot Container ===== */
 .plot-container {
-    margin: 2rem 0;
+    margin: 2.5rem 0;
     text-align: center;
 }
 
 .plot-container img {
     max-width: 100%;
+    width: auto;
     height: auto;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    display: inline-block;
 }
 
 .caption {
@@ -214,6 +216,40 @@ td code {
     font-size: 0.9rem;
     color: var(--text-light);
     font-style: italic;
+}
+
+/* ===== Hero Buttons ===== */
+.hero-links {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.hero-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--accent-color);
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.hero-btn:hover {
+    background: #3a8eef;
+}
+
+.hero-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+.hero-btn-secondary:hover {
+    background: var(--bg-alt);
+    border-color: var(--accent-color);
 }
 
 /* ===== Code Blocks ===== */

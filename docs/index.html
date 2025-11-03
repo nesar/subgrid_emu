@@ -11,6 +11,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for LaTeX rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
 </head>
 <body>
     <nav class="navbar">
@@ -23,7 +35,12 @@
                 <a href="#installation">Installation</a>
                 <a href="#usage">Usage</a>
                 <a href="#api">API</a>
-                <a href="https://github.com/nesar/subgrid_emu" target="_blank" class="github-link">GitHub</a>
+                <a href="https://github.com/nesar/subgrid_emu" target="_blank" class="github-link">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" style="margin-right: 0.5rem;">
+                        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+                    </svg>
+                    GitHub
+                </a>
             </div>
         </div>
     </nav>
@@ -33,6 +50,10 @@
             <h1>Subgrid Emulator</h1>
             <p class="subtitle">Fast emulation of astrophysical summary statistics from hydrodynamical cosmological simulations</p>
             <p class="description">Gaussian Process emulators trained on the CRK-HACC simulation ensemble with varying subgrid physics parameters</p>
+            <div class="hero-links">
+                <a href="https://github.com/nesar/subgrid_emu" class="hero-btn" target="_blank">View on GitHub</a>
+                <a href="#installation" class="hero-btn hero-btn-secondary">Get Started</a>
+            </div>
         </div>
     </header>
 
@@ -42,7 +63,7 @@
                 <h2>Available Summary Statistics</h2>
                 
                 <h3>5-Parameter Models</h3>
-                <p class="model-info">Trained on 64 simulations (L = 128 h⁻¹Mpc, 2×128³ particles)</p>
+                <p class="model-info">Trained on 64 simulations ($L = 128 \, h^{-1}\text{Mpc}$, $2 \times 128^3$ particles)</p>
                 
                 <div class="stats-table">
                     <table>
@@ -57,32 +78,32 @@
                             <tr>
                                 <td><code>GSMF</code></td>
                                 <td>Galaxy Stellar Mass Function</td>
-                                <td>dn/d log₁₀ M★ [1/(h⁻¹Mpc)³]</td>
+                                <td>$\mathrm{d}n / \mathrm{d}\log_{10} M_{\mathrm{stars}}$ $[1 / (h^{-1}\mathrm{Mpc})^3]$</td>
                             </tr>
                             <tr>
                                 <td><code>CGD</code></td>
                                 <td>Cluster Gas Density</td>
-                                <td>ρ_gas / ρ_crit</td>
+                                <td>$\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$</td>
                             </tr>
                             <tr>
                                 <td><code>fGas</code></td>
                                 <td>Cluster Gas Fraction</td>
-                                <td>M_gas / M_500c [&lt;R_500c]</td>
+                                <td>$M_{\mathrm{gas}} / M_{\mathrm{500c}}$ $[&lt;R_{\mathrm{500c}}]$</td>
                             </tr>
                             <tr>
                                 <td><code>BHMSM</code></td>
                                 <td>Black Hole Mass-Stellar Mass</td>
-                                <td>M_BH [M_☉]</td>
+                                <td>$M_{\mathrm{BH}}$ $[\mathrm{M}_{\odot}]$</td>
                             </tr>
                             <tr>
                                 <td><code>CSFR</code></td>
                                 <td>Cosmic Star Formation Rate</td>
-                                <td>CSFR [M_☉ yr⁻¹ (h⁻¹Mpc)⁻³]</td>
+                                <td>$\mathrm{CSFR}$ $[\mathrm{M}_{\odot} \, \mathrm{yr}^{-1} \, (h^{-1}\mathrm{Mpc})^{-3}]$</td>
                             </tr>
                             <tr>
                                 <td><code>Pk</code></td>
                                 <td>Total Power Spectra Ratio</td>
-                                <td>P_sub(k) / P_grav(k)</td>
+                                <td>$P_{\mathrm{sub}}(k) / P_{\mathrm{grav}}(k)$</td>
                             </tr>
                         </tbody>
                     </table>
@@ -94,7 +115,7 @@
                 </div>
 
                 <h3>2-Parameter Models</h3>
-                <p class="model-info">Trained on 16 simulations (L = 256 h⁻¹Mpc, 2×256³ particles, higher resolution)</p>
+                <p class="model-info">Trained on 16 simulations ($L = 256 \, h^{-1}\text{Mpc}$, $2 \times 256^3$ particles, higher resolution)</p>
                 
                 <div class="stats-table">
                     <table>
@@ -109,12 +130,12 @@
                             <tr>
                                 <td><code>CGD_2p</code></td>
                                 <td>Cluster Gas Density</td>
-                                <td>ρ_gas / ρ_crit</td>
+                                <td>$\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$</td>
                             </tr>
                             <tr>
                                 <td><code>fGas_2p</code></td>
                                 <td>Cluster Gas Fraction</td>
-                                <td>M_gas / M_500c [&lt;R_500c]</td>
+                                <td>$M_{\mathrm{gas}} / M_{\mathrm{500c}}$ $[&lt;R_{\mathrm{500c}}]$</td>
                             </tr>
                         </tbody>
                     </table>
@@ -139,38 +160,38 @@
                         <tbody>
                             <tr>
                                 <td><code>kappa_w</code></td>
-                                <td>κ_w</td>
+                                <td>$\kappa_\text{w}$</td>
                                 <td>(2.0, 4.0)</td>
                                 <td>Wind efficiency parameter</td>
                             </tr>
                             <tr>
                                 <td><code>e_w</code></td>
-                                <td>e_w</td>
+                                <td>$e_\text{w}$</td>
                                 <td>(0.2, 1.0)</td>
                                 <td>Wind energy fraction</td>
                             </tr>
                             <tr>
                                 <td><code>M_seed</code></td>
-                                <td>M_seed/10⁶</td>
+                                <td>$M_\text{seed}/10^{6}$</td>
                                 <td>(0.6, 1.2)</td>
-                                <td>Black hole seed mass (in 10⁶ M_☉)</td>
+                                <td>Black hole seed mass (in $10^6$ $M_\odot$)</td>
                             </tr>
                             <tr>
                                 <td><code>v_kin</code></td>
-                                <td>v_kin/10⁴</td>
+                                <td>$v_\text{kin}/10^{4}$</td>
                                 <td>(0.1, 1.2)</td>
-                                <td>Kinetic wind velocity (in 10⁴ km/s)</td>
+                                <td>Kinetic wind velocity (in $10^4$ km/s)</td>
                             </tr>
                             <tr>
                                 <td><code>epsilon_kin</code></td>
-                                <td>ε_kin/10¹</td>
+                                <td>$\epsilon_\text{kin}/10^{1}$</td>
                                 <td>(0.02, 1.2)</td>
-                                <td>Kinetic feedback efficiency (in 10¹)</td>
+                                <td>Kinetic feedback efficiency (in $10^1$)</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-                <p class="note"><strong>Note:</strong> Parameters should be provided in the scaled units shown above. 2-parameter models use only the last two parameters (v_kin, epsilon_kin).</p>
+                <p class="note"><strong>Note:</strong> Parameters should be provided in the scaled units shown above. 2-parameter models use only the last two parameters ($v_\text{kin}$, $\epsilon_\text{kin}$).</p>
             </div>
         </section>
 
@@ -308,7 +329,12 @@ stats = list_available_statistics()
 
     <footer class="footer">
         <div class="container">
-            <p>&copy; 2025 Nesar Ramachandra | <a href="https://github.com/nesar/subgrid_emu">GitHub</a> | <a href="https://github.com/nesar/subgrid_emu/issues">Issues</a> | MIT License</p>
+            <p>&copy; 2025 Nesar Ramachandra | 
+                <a href="https://github.com/nesar/subgrid_emu">GitHub</a> | 
+                <a href="https://github.com/nesar/subgrid_emu/issues">Issues</a> | 
+                <a href="https://github.com/nesar/subgrid_emu/blob/main/README.md">Documentation</a> | 
+                MIT License
+            </p>
         </div>
     </footer>
 
