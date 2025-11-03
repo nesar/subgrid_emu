@@ -6,6 +6,40 @@ A Python package for fast emulation of cosmological hydrodynamical simulation ou
 
 This package provides trained surrogates that predict various cosmological summary statistics as a function of subgrid physics parameters. The emulators are based on Gaussian Processes and trained on a suite of 64 (5 subgrid parameters, smaller boxes) + 16 (2 subgrid parameters, larger boxes) simulations with varying subgrid physics parameters.
 
+
+## Available Summary Statistics
+
+### 5-Parameter Models (smaller simulation box)
+
+| Stat Name | Symbol | Description |
+|-----------|-------|-------------|
+| GSMF | $\mathrm{d}n / \mathrm{d}\log_{10} M_{\mathrm{stars}} \left[1 / (h^{-1}\mathrm{Mpc})^3 \right]$ | Galaxy stellar mass function |
+| CGD | $\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$ | Cluster gas density |
+| fGas | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction |
+| BHMSM | $M_{\mathrm{BH}} [\mathrm{M}_{\odot}$] | Black hole mass-stellar mass |
+| CSFR | $\mathrm{CSFR}   [\mathrm{M}_{\odot}   \mathrm{yr}^{-1}   (h^{-1}\mathrm{Mpc})^{-3}]$ | Cosmic star formation rate |
+| Pk | $P_{\mathrm{sub}}(k) / P_{\mathrm{grav}}(k)$ | Total power spectra ratio |
+
+### 2-Parameter Models (larger simulation box)
+
+| Stat Name | Symbol | Description |
+|-----------|-------|-------------|
+| CGD_2p | $\rho_{\mathrm{gas}}  /  \rho_{\mathrm{crit}}$ | Cluster gas density (higher resolution) |
+| fGas_2p | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction (higher resolution) |
+
+## Input Parameters
+
+| # | Parameter | Symbol (and Scaling) | Range | Description |
+|---|-----------|-------|-------|-------------|
+| 1 | kappa_w | $\kappa_\text{w}$ | (2.0, 4.0) | Wind efficiency parameter |
+| 2 | e_w | $e_\text{w}$ | (0.2, 1.0) | Wind energy fraction |
+| 3 | M_seed | $M_\text{seed}/10^{6}$ | (0.6, 1.2) | Black hole seed mass (in 10^6 M_☉) |
+| 4 | v_kin | $v_\text{kin}/10^{4}$ | (0.1, 1.2) | Kinetic wind velocity (in 10^4 km/s) |
+| 5 | epsilon_kin | $\epsilon_\text{kin}/10^{1}$ | (0.02, 1.2) | Kinetic feedback efficiency (in 10^1) |
+
+**Note**: Parameters should be provided in the scaled units shown below.
+
+
 ## Installation
 
 Clone the repository:
@@ -48,37 +82,6 @@ plt.legend()
 plt.show()
 ```
 
-## Available Summary Statistics
-
-### 5-Parameter Models (smaller simulation box)
-
-| Stat Name | Symbol | Description |
-|-----------|-------|-------------|
-| GSMF | $\mathrm{d}n / \mathrm{d}\log_{10} M_{\mathrm{stars}} \left[1 / (h^{-1}\mathrm{Mpc})^3 \right]$ | Galaxy stellar mass function |
-| CGD | $\rho_{\mathrm{gas}} / \rho_{\mathrm{crit}}$ | Cluster gas density |
-| fGas | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction |
-| BHMSM | $M_{\mathrm{BH}} [\mathrm{M}_{\odot}$] | Black hole mass-stellar mass |
-| CSFR | $\mathrm{CSFR}   [\mathrm{M}_{\odot}   \mathrm{yr}^{-1}   (h^{-1}\mathrm{Mpc})^{-3}]$ | Cosmic star formation rate |
-| Pk | $P_{\mathrm{sub}}(k) / P_{\mathrm{grav}}(k)$ | Total power spectra ratio |
-
-### 2-Parameter Models (larger simulation box)
-
-| Stat Name | Symbol | Description |
-|-----------|-------|-------------|
-| CGD_2p | $\rho_{\mathrm{gas}}  /  \rho_{\mathrm{crit}}$ | Cluster gas density (higher resolution) |
-| fGas_2p | $M_{\mathrm{gas}} / M_{\mathrm{500c}} \quad [<R_{\mathrm{500c}}]$ | Cluster gas fraction (higher resolution) |
-
-## Input Parameters
-
-| # | Parameter | Symbol (and Scaling) | Range | Description |
-|---|-----------|-------|-------|-------------|
-| 1 | kappa_w | $\kappa_\text{w}$ | (2.0, 4.0) | Wind efficiency parameter |
-| 2 | e_w | $e_\text{w}$ | (0.2, 1.0) | Wind energy fraction |
-| 3 | M_seed | $M_\text{seed}/10^{6}$ | (0.6, 1.2) | Black hole seed mass (in 10^6 M_☉) |
-| 4 | v_kin | $v_\text{kin}/10^{4}$ | (0.1, 1.2) | Kinetic wind velocity (in 10^4 km/s) |
-| 5 | epsilon_kin | $\epsilon_\text{kin}/10^{1}$ | (0.02, 1.2) | Kinetic feedback efficiency (in 10^1) |
-
-**Note**: Parameters should be provided in the scaled units shown above.
 
 ## Examples
 
