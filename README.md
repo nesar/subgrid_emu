@@ -33,11 +33,11 @@ This package provides trained surrogates that predict various cosmological summa
 |---|-----------|-------|-------|-------------|
 | 1 | kappa_w | $\kappa_\text{w}$ | (2.0, 4.0) | Wind efficiency parameter |
 | 2 | e_w | $e_\text{w}$ | (0.2, 1.0) | Wind energy fraction |
-| 3 | M_seed | $M_\text{seed}/10^{6}$ | (0.6, 1.2) | Black hole seed mass (in 10^6 M_☉) |
-| 4 | v_kin | $v_\text{kin}/10^{4}$ | (0.1, 1.2) | Kinetic wind velocity (in 10^4 km/s) |
-| 5 | epsilon_kin | $\epsilon_\text{kin}/10^{1}$ | (0.02, 1.2) | Kinetic feedback efficiency (in 10^1) |
+| 3 | M_seed | $M_\text{seed}/10^{6}$ | (0.6, 1.2) | Black hole seed mass (in $10^6$ $M_\odot$) |
+| 4 | v_kin | $v_\text{kin}/10^{4}$ | (0.1, 1.2) | Kinetic wind velocity (in $10^4$ km/s) |
+| 5 | epsilon_kin | $\epsilon_\text{kin}/10^{1}$ | (0.02, 1.2) | Kinetic feedback efficiency (in $10^1$) |
 
-**Note**: Parameters should be provided in the scaled units shown below.
+**Note**: Parameters should be provided in the scaled units shown above.
 
 
 ## Installation
