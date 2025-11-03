@@ -62,6 +62,7 @@ setup(
     package_data={
         "subgrid_emu": [
             "models/*.pkl",
+            "data/*.npy",
         ],
     },
     include_package_data=True,
