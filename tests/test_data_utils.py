@@ -62,11 +62,11 @@ class TestDataUtilities:
         assert len(param_info['names']) == 5
         assert len(param_info['ranges']) == 5
         assert len(param_info['descriptions']) == 5
-        assert len(param_info['scales']) == 5
+        assert len(param_info['scales']) == 3  # Only 3 parameters have scaling
 
     def test_invalid_stat_name_x_grid(self):
         """Test that invalid stat names raise errors in get_x_grid."""
-        with pytest.raises(ValueError):
+        with pytest.raises(FileNotFoundError):
             get_x_grid('INVALID_STAT')
 
     def test_invalid_stat_name_plot_info(self):

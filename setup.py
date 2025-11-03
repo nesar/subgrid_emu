@@ -41,13 +41,13 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.9",
+    python_requires=">=3.9,<3.11",
     install_requires=[
-        "numpy==1.22.1",
-        "scipy==1.10.1",
+        "numpy>=1.21.0,<1.24",
+        "scipy>=1.7.0,<1.11",
         "sepia @ git+https://github.com/lanl/SEPIA.git",
-        "matplotlib==3.8.2",
-        "pandas==1.5.2",
+        "matplotlib>=3.5.0,<3.9",
+        "pandas>=1.3.0,<2.0",
     ],
     extras_require={
         "dev": [

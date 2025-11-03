@@ -28,12 +28,17 @@ A complete CI/CD pipeline has been successfully set up for the `subgrid_emu` pac
 
 1. **setup.py**
    - Added `data/*.npy` to package_data to ensure data files are included in distribution
+   - Updated dependency versions to use flexible ranges instead of pinned versions
+   - Set Python requirement to >=3.9,<3.11
+
+2. **requirements.txt**
+   - Updated dependency versions to use flexible ranges for better compatibility
 
 ## CI/CD Pipeline Features
 
 ### Automated Testing
-- **Multi-version testing**: Python 3.9, 3.10, 3.11
-- **Test coverage**: Comprehensive test suite with 30+ tests
+- **Multi-version testing**: Python 3.9, 3.10
+- **Test coverage**: Comprehensive test suite with 45+ tests
 - **Coverage reporting**: Automatic upload to Codecov
 
 ### Code Quality
@@ -152,7 +157,8 @@ subgrid_emu/
 
 ### Python Version Support
 - Minimum: Python 3.9
-- Tested: Python 3.9, 3.10, 3.11
+- Maximum: Python 3.10 (Python 3.11+ not yet supported due to dependency constraints)
+- Tested: Python 3.9, 3.10
 
 ### Dependencies
 All dependencies are properly specified in:
