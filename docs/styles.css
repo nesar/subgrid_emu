@@ -1,13 +1,13 @@
-/* ===== Minimal Professional Design ===== */
+/* ===== Dark Professional Design ===== */
 :root {
-    --primary-color: #1a1a1a;
-    --accent-color: #0066cc;
-    --bg-color: #ffffff;
-    --bg-alt: #f8f9fa;
-    --text-color: #2c3e50;
-    --text-light: #6c757d;
-    --border-color: #dee2e6;
-    --code-bg: #f5f5f5;
+    --primary-color: #e8e8e8;
+    --accent-color: #4a9eff;
+    --bg-color: #1a1a1a;
+    --bg-alt: #242424;
+    --text-color: #d4d4d4;
+    --text-light: #a0a0a0;
+    --border-color: #3a3a3a;
+    --code-bg: #2d2d2d;
 }
 
 * {
@@ -80,13 +80,14 @@ code, pre {
 
 .github-link {
     padding: 0.5rem 1rem;
-    background: var(--primary-color);
-    color: white !important;
+    background: var(--bg-alt);
+    color: var(--primary-color) !important;
     border-radius: 4px;
+    border: 1px solid var(--border-color);
 }
 
 .github-link:hover {
-    background: #333;
+    background: var(--border-color);
 }
 
 /* ===== Hero Section ===== */
@@ -168,7 +169,7 @@ th {
     text-align: left;
     font-weight: 600;
     font-size: 0.9rem;
-    color: var(--text-color);
+    color: var(--primary-color);
     border-bottom: 2px solid var(--border-color);
 }
 
@@ -176,6 +177,7 @@ td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--border-color);
     font-size: 0.9rem;
+    color: var(--text-color);
 }
 
 tbody tr:last-child td {
@@ -191,6 +193,7 @@ td code {
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
     font-size: 0.85rem;
+    color: var(--accent-color);
 }
 
 /* ===== Plot Container ===== */
@@ -215,13 +218,13 @@ td code {
 
 /* ===== Code Blocks ===== */
 .code-block {
-    background: #2d2d2d;
-    color: #e8e8e8;
+    background: #0d1117;
+    color: #e6edf3;
     padding: 1.5rem;
     border-radius: 4px;
     overflow-x: auto;
     margin: 1.5rem 0;
-    border: 1px solid #444;
+    border: 1px solid var(--border-color);
 }
 
 .code-block code {
@@ -232,35 +235,35 @@ td code {
 }
 
 .keyword {
-    color: #c792ea;
+    color: #ff7b72;
 }
 
 .string {
-    color: #c3e88d;
+    color: #a5d6ff;
 }
 
 .number {
-    color: #f78c6c;
+    color: #79c0ff;
 }
 
 .comment {
-    color: #7c7c7c;
+    color: #8b949e;
     font-style: italic;
 }
 
 .builtin {
-    color: #82aaff;
+    color: #d2a8ff;
 }
 
 /* ===== Notes ===== */
 .note {
     margin: 1.5rem 0;
     padding: 1rem;
-    background: #fff3cd;
+    background: rgba(255, 193, 7, 0.1);
     border-left: 4px solid #ffc107;
     border-radius: 4px;
     font-size: 0.9rem;
-    color: #856404;
+    color: var(--text-color);
 }
 
 .requirements {
@@ -284,7 +287,7 @@ td code {
     font-size: 1.1rem;
     font-weight: 500;
     margin-bottom: 0.75rem;
-    color: var(--primary-color);
+    color: var(--accent-color);
     font-family: 'JetBrains Mono', monospace;
 }
 
@@ -319,19 +322,21 @@ td code {
     padding: 0.2rem 0.4rem;
     border-radius: 3px;
     font-size: 0.85rem;
+    color: var(--accent-color);
 }
 
 /* ===== Footer ===== */
 .footer {
-    background: var(--primary-color);
-    color: white;
+    background: var(--bg-alt);
+    color: var(--text-color);
     padding: 2rem 0;
     text-align: center;
     font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
 }
 
 .footer a {
-    color: white;
+    color: var(--accent-color);
     text-decoration: none;
     margin: 0 0.5rem;
 }
