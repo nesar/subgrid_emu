@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Subgrid Emulator - Fast emulation of astrophysical quantities from hydrodynamical cosmological simulations">
+    <meta name="keywords" content="cosmology, emulator, gaussian process, hydrodynamics, simulations, astrophysics">
+    <meta name="author" content="Nesar Ramachandra">
+    <title>Subgrid Emulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">subgrid_emu</span>
+            </div>
+            <div class="nav-links">
+                <a href="#statistics">Statistics</a>
+                <a href="#installation">Installation</a>
+                <a href="#usage">Usage</a>
+                <a href="#api">API</a>
+                <a href="https://github.com/nesar/subgrid_emu" target="_blank" class="github-link">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Subgrid Emulator</h1>
+            <p class="subtitle">Fast emulation of astrophysical summary statistics from hydrodynamical cosmological simulations</p>
+            <p class="description">Gaussian Process emulators trained on the CRK-HACC simulation ensemble with varying subgrid physics parameters</p>
+        </div>
+    </header>
+
+    <main>
+        <section id="statistics" class="section">
+            <div class="container">
+                <h2>Available Summary Statistics</h2>
+                
+                <h3>5-Parameter Models</h3>
+                <p class="model-info">Trained on 64 simulations (L = 128 h⁻¹Mpc, 2×128³ particles)</p>
+                
+                <div class="stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GSMF</code></td>
+                                <td>Galaxy Stellar Mass Function</td>
+                                <td>dn/d log₁₀ M★ [1/(h⁻¹Mpc)³]</td>
+                            </tr>
+                            <tr>
+                                <td><code>CGD</code></td>
+                                <td>Cluster Gas Density</td>
+                                <td>ρ_gas / ρ_crit</td>
+                            </tr>
+                            <tr>
+                                <td><code>fGas</code></td>
+                                <td>Cluster Gas Fraction</td>
+                                <td>M_gas / M_500c [&lt;R_500c]</td>
+                            </tr>
+                            <tr>
+                                <td><code>BHMSM</code></td>
+                                <td>Black Hole Mass-Stellar Mass</td>
+                                <td>M_BH [M_☉]</td>
+                            </tr>
+                            <tr>
+                                <td><code>CSFR</code></td>
+                                <td>Cosmic Star Formation Rate</td>
+                                <td>CSFR [M_☉ yr⁻¹ (h⁻¹Mpc)⁻³]</td>
+                            </tr>
+                            <tr>
+                                <td><code>Pk</code></td>
+                                <td>Total Power Spectra Ratio</td>
+                                <td>P_sub(k) / P_grav(k)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="plot-container">
+                    <img src="https://github.com/user-attachments/assets/123b84e5-8a40-434d-a03e-496d365fe043" alt="5-parameter model predictions" />
+                    <p class="caption">Example predictions from 5-parameter models</p>
+                </div>
+
+                <h3>2-Parameter Models</h3>
+                <p class="model-info">Trained on 16 simulations (L = 256 h⁻¹Mpc, 2×256³ particles, higher resolution)</p>
+                
+                <div class="stats-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Formula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CGD_2p</code></td>
+                                <td>Cluster Gas Density</td>
+                                <td>ρ_gas / ρ_crit</td>
+                            </tr>
+                            <tr>
+                                <td><code>fGas_2p</code></td>
+                                <td>Cluster Gas Fraction</td>
+                                <td>M_gas / M_500c [&lt;R_500c]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="plot-container">
+                    <img src="https://github.com/user-attachments/assets/0e46409f-da28-4479-842a-5e896b6e44ce" alt="2-parameter model predictions" />
+                    <p class="caption">Example predictions from 2-parameter models</p>
+                </div>
+
+                <h3>Input Parameters</h3>
+                <div class="params-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Symbol</th>
+                                <th>Range</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>kappa_w</code></td>
+                                <td>κ_w</td>
+                                <td>(2.0, 4.0)</td>
+                                <td>Wind efficiency parameter</td>
+                            </tr>
+                            <tr>
+                                <td><code>e_w</code></td>
+                                <td>e_w</td>
+                                <td>(0.2, 1.0)</td>
+                                <td>Wind energy fraction</td>
+                            </tr>
+                            <tr>
+                                <td><code>M_seed</code></td>
+                                <td>M_seed/10⁶</td>
+                                <td>(0.6, 1.2)</td>
+                                <td>Black hole seed mass (in 10⁶ M_☉)</td>
+                            </tr>
+                            <tr>
+                                <td><code>v_kin</code></td>
+                                <td>v_kin/10⁴</td>
+                                <td>(0.1, 1.2)</td>
+                                <td>Kinetic wind velocity (in 10⁴ km/s)</td>
+                            </tr>
+                            <tr>
+                                <td><code>epsilon_kin</code></td>
+                                <td>ε_kin/10¹</td>
+                                <td>(0.02, 1.2)</td>
+                                <td>Kinetic feedback efficiency (in 10¹)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="note"><strong>Note:</strong> Parameters should be provided in the scaled units shown above. 2-parameter models use only the last two parameters (v_kin, epsilon_kin).</p>
+            </div>
+        </section>
+
+        <section id="installation" class="section section-alt">
+            <div class="container">
+                <h2>Installation</h2>
+                <div class="code-block">
+                    <code>git clone https://github.com/nesar/subgrid_emu.git
+cd subgrid_emu
+pip install -e .</code>
+                </div>
+                <p class="requirements"><strong>Requirements:</strong> Python ≥ 3.9, &lt; 3.11 | NumPy ≥ 1.21.0 | SciPy ≥ 1.7.0 | SEPIA | Matplotlib | Pandas</p>
+            </div>
+        </section>
+
+        <section id="usage" class="section">
+            <div class="container">
+                <h2>Quick Start</h2>
+                
+                <h3>Basic Usage</h3>
+                <div class="code-block">
+                    <code><span class="keyword">from</span> subgrid_emu <span class="keyword">import</span> load_emulator, get_x_grid
+
+<span class="comment"># Load an emulator for Galaxy Stellar Mass Function</span>
+emu = load_emulator(<span class="string">'GSMF'</span>)
+
+<span class="comment"># Define subgrid physics parameters (in scaled units)</span>
+<span class="comment"># [kappa_w, e_w, M_seed, v_kin, epsilon_kin]</span>
+params = [<span class="number">3.0</span>, <span class="number">0.5</span>, <span class="number">0.8</span>, <span class="number">0.65</span>, <span class="number">0.1</span>]
+
+<span class="comment"># Make prediction</span>
+mean, quantiles = emu.predict(params)
+
+<span class="comment"># Get the x-axis values</span>
+x_grid, x_label = get_x_grid(<span class="string">'GSMF'</span>)
+
+<span class="comment"># Plot the result</span>
+<span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt
+plt.plot(x_grid, mean, label=<span class="string">'Prediction'</span>)
+plt.fill_between(x_grid, quantiles[:, <span class="number">0</span>], quantiles[:, <span class="number">1</span>], 
+                 alpha=<span class="number">0.3</span>, label=<span class="string">'90% CI'</span>)
+plt.xscale(<span class="string">'log'</span>)
+plt.yscale(<span class="string">'log'</span>)
+plt.xlabel(x_label)
+plt.ylabel(<span class="string">'GSMF'</span>)
+plt.legend()
+plt.show()</code>
+                </div>
+
+                <h3>Using 2-Parameter Models</h3>
+                <div class="code-block">
+                    <code><span class="keyword">from</span> subgrid_emu <span class="keyword">import</span> load_emulator
+
+<span class="comment"># Load 2-parameter model</span>
+emu = load_emulator(<span class="string">'CGD_2p'</span>)
+
+<span class="comment"># Only need last 2 parameters: [v_kin, epsilon_kin]</span>
+params_2p = [<span class="number">0.65</span>, <span class="number">0.1</span>]
+
+mean, quantiles = emu.predict(params_2p)</code>
+                </div>
+
+                <h3>List Available Statistics</h3>
+                <div class="code-block">
+                    <code><span class="keyword">from</span> subgrid_emu <span class="keyword">import</span> list_available_statistics
+
+stats = list_available_statistics()
+<span class="builtin">print</span>(<span class="string">"5-parameter models:"</span>, stats[<span class="string">'5-parameter'</span>])
+<span class="builtin">print</span>(<span class="string">"2-parameter models:"</span>, stats[<span class="string">'2-parameter'</span>])</code>
+                </div>
+            </div>
+        </section>
+
+        <section id="api" class="section section-alt">
+            <div class="container">
+                <h2>API Reference</h2>
+                
+                <div class="api-function">
+                    <h3><code>load_emulator(stat_name, z_index=0, exp_variance=None)</code></h3>
+                    <p>Load an emulator for a specific summary statistic.</p>
+                    <p><strong>Parameters:</strong></p>
+                    <ul>
+                        <li><code>stat_name</code> (str): Name of the summary statistic</li>
+                        <li><code>z_index</code> (int): Redshift index (default: 0 for z=0)</li>
+                        <li><code>exp_variance</code> (float): Explained variance for PCA (default: 0.95 for 5-param, 0.99 for 2-param)</li>
+                    </ul>
+                    <p><strong>Returns:</strong> SubgridEmulator object</p>
+                </div>
+
+                <div class="api-function">
+                    <h3><code>SubgridEmulator.predict(params, num_samples=100)</code></h3>
+                    <p>Make predictions for given parameters.</p>
+                    <p><strong>Parameters:</strong></p>
+                    <ul>
+                        <li><code>params</code> (array-like): Input parameters (5 or 2 values depending on model)</li>
+                        <li><code>num_samples</code> (int): Number of posterior samples for uncertainty quantification</li>
+                    </ul>
+                    <p><strong>Returns:</strong> (mean, quantiles) where quantiles are [5%, 95%] bounds</p>
+                </div>
+
+                <div class="api-function">
+                    <h3><code>get_x_grid(stat_name)</code></h3>
+                    <p>Get the independent variable grid for a summary statistic.</p>
+                    <p><strong>Returns:</strong> (x_grid, x_label)</p>
+                </div>
+
+                <div class="api-function">
+                    <h3><code>get_plot_info(stat_name)</code></h3>
+                    <p>Get plotting information (title, labels, scales).</p>
+                    <p><strong>Returns:</strong> Dictionary with 'title', 'xlabel', 'ylabel', 'xscale', 'yscale'</p>
+                </div>
+
+                <div class="api-function">
+                    <h3><code>get_parameter_info()</code></h3>
+                    <p>Get detailed information about input parameters.</p>
+                    <p><strong>Returns:</strong> Dictionary with parameter names, ranges, descriptions, and scaling factors</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2>Citation</h2>
+                <div class="code-block">
+                    <code>@software{subgrid_emu,
+  author = {Ramachandra, Nesar},
+  title = {Subgrid Emulator: Fast emulation of astrophysical summary statistics},
+  year = {2025},
+  url = {https://github.com/nesar/subgrid_emu}
+}</code>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Nesar Ramachandra | <a href="https://github.com/nesar/subgrid_emu">GitHub</a> | <a href="https://github.com/nesar/subgrid_emu/issues">Issues</a> | MIT License</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
