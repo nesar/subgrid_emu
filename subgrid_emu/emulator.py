@@ -10,7 +10,12 @@ import os
 import sys
 import warnings
 from io import StringIO
-import pkg_resources
+try:
+    # Python 3.9+
+    from importlib.resources import files
+except ImportError:
+    # Fallback for older Python versions
+    from importlib_resources import files
 from sepia.SepiaModel import SepiaModel
 from sepia.SepiaData import SepiaData
 from sepia.SepiaPredict import SepiaEmulatorPrediction
@@ -55,11 +60,9 @@ def get_model_path(stat_name, z_index=0):
     model_filename = f"{stat_name}_multivariate_model_z_index{z_index}.pkl"
     
     try:
-        # Try to get from installed package
-        model_path = pkg_resources.resource_filename(
-            'subgrid_emu', 
-            f'models/{model_filename}'
-        )
+        # Try to get from installed package using importlib.resources
+        package_files = files('subgrid_emu')
+        model_path = str(package_files / 'models' / model_filename)
     except:
         # Fallback to relative path
         current_dir = os.path.dirname(os.path.abspath(__file__))
