@@ -1,4 +1,0 @@
-# Constraints file to enforce scipy version compatibility with SEPIA
-# SEPIA uses scipy.linalg.solve(sym_pos=True) which was removed in scipy 1.12.0
-# Pin to exact version to avoid any dependency resolution issues
-scipy==1.11.4
