@@ -25,19 +25,18 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt', '**/constraints.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -c constraints.txt -e .
+        # Install scipy first with exact version, bypassing cache
+        pip install --no-cache-dir scipy==1.11.4
+        # Verify scipy version before proceeding
+        python -c "import scipy; v=scipy.__version__; assert v=='1.11.4', f'Wrong scipy version: {v}'; print(f'✓ scipy {v} installed')"
+        # Install package with constraints to prevent scipy upgrade
+        pip install --no-cache-dir -c constraints.txt -e .
         pip install pytest pytest-cov
+        # Final verification
+        python -c "import scipy; print(f'Final scipy version: {scipy.__version__}')"
 
     - name: Run tests
       run: |
@@ -144,7 +143,14 @@ jobs:
     - name: Install package from wheel
       run: |
         python -m pip install --upgrade pip
-        pip install -c constraints.txt dist/*.whl
+        # Install scipy first with exact version, bypassing cache
+        pip install --no-cache-dir scipy==1.11.4
+        # Verify scipy version
+        python -c "import scipy; v=scipy.__version__; assert v=='1.11.4', f'Wrong scipy version: {v}'; print(f'✓ scipy {v} installed')"
+        # Install wheel with constraints
+        pip install --no-cache-dir -c constraints.txt dist/*.whl
+        # Final verification
+        python -c "import scipy; print(f'Final scipy version: {scipy.__version__}')"
 
     - name: Test package import
       run: |

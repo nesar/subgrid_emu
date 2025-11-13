@@ -44,7 +44,7 @@ setup(
     python_requires=">=3.9",
     install_requires=[
         "numpy>=1.21.0",
-        "scipy>=1.7.0,<1.12",
+        "scipy>=1.7.0,<1.12",  # Must be <1.12 due to SEPIA compatibility (sym_pos parameter removed)
         "sepia @ git+https://github.com/lanl/SEPIA.git",
         "matplotlib>=3.5.0",
         "pandas>=1.3.0",
