@@ -12,9 +12,9 @@ The subgrid_emu package has been updated to be compatible with Python 3.12.12 (a
 **Changes:**
 - Updated `python_requires` from `">=3.9,<3.11"` to `">=3.9"` to allow Python 3.12+
 - Added Python 3.11 and 3.12 to classifiers
-- Removed upper version constraints on dependencies:
+- Adjusted dependency constraints:
   - `numpy>=1.21.0,<1.24` → `numpy>=1.21.0`
-  - `scipy>=1.7.0,<1.11` → `scipy>=1.7.0`
+  - `scipy>=1.7.0,<1.11` → `scipy>=1.7.0,<1.12` (constrained due to SEPIA compatibility)
   - `matplotlib>=3.5.0,<3.9` → `matplotlib>=3.5.0`
   - `pandas>=1.3.0,<2.0` → `pandas>=1.3.0`
 
@@ -22,7 +22,8 @@ The subgrid_emu package has been updated to be compatible with Python 3.12.12 (a
 **File:** `subgrid_emu/requirements.txt`
 
 **Changes:**
-- Removed upper version constraints on all dependencies to allow compatibility with Python 3.12
+- Adjusted dependency constraints to allow Python 3.12 compatibility
+- **IMPORTANT:** scipy is constrained to `<1.12` because the SEPIA library uses `scipy.linalg.solve(sym_pos=True)` which was removed in scipy 1.12.0
 
 ### 3. emulator.py
 **File:** `subgrid_emu/subgrid_emu/emulator.py`
@@ -100,14 +101,21 @@ The package should:
 
 ## Potential Issues and Solutions
 
-### Issue 1: SEPIA Dependency
-The SEPIA package is installed from GitHub. If there are compatibility issues:
-- Check if SEPIA has been updated for Python 3.12
-- May need to update SEPIA or wait for upstream fixes
+### Issue 1: SciPy Version Constraint (CRITICAL)
+**Issue:** The SEPIA library uses `scipy.linalg.solve(sym_pos=True)`, which was:
+- Deprecated in scipy 1.11.0
+- Removed in scipy 1.12.0 (replaced with `assume_a='pos'`)
 
-### Issue 2: NumPy/SciPy Compatibility
-- Modern versions of NumPy and SciPy support Python 3.12
-- If issues arise, specific version pins may be needed
+**Solution:** scipy is constrained to `<1.12` to maintain compatibility with SEPIA.
+- scipy 1.11.x is the last version with `sym_pos` support
+- scipy 1.11.4+ supports Python 3.12
+- This constraint will remain until SEPIA is updated
+
+### Issue 2: SEPIA Dependency
+The SEPIA package is installed from GitHub. If there are compatibility issues:
+- Check if SEPIA has been updated for scipy 1.12+
+- May need to update SEPIA or wait for upstream fixes
+- Current workaround: pin scipy to <1.12
 
 ### Issue 3: importlib.resources
 - The `files()` API is available in Python 3.9+
