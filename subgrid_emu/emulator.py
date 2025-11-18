@@ -249,10 +249,10 @@ class SubgridEmulator:
         
         self.model = sepia_model
     
-    def predict(self, params, num_samples=100):
+    def predict(self, params):
         """
         Make predictions for given parameters.
-        
+
         Parameters
         ----------
         params : np.array
@@ -262,71 +262,96 @@ class SubgridEmulator:
             For 5-parameter models: [kappa, e_gw, seed_mass, vkin, eps]
             For 2-parameter models: [vkin, eps]
             Note: Parameters should be in scaled units (see PARAM_NAMES)
-        num_samples : int, optional
-            Number of posterior samples to use (default: 100)
-            
+
         Returns
         -------
         pred_mean : np.array
             Mean prediction (with appropriate scaling applied)
-        pred_quantiles : np.array
-            Prediction quantiles [0.05, 0.95] for uncertainty (with appropriate scaling applied)
-            
+        pred_std : np.array
+            Standard deviation for uncertainty (with appropriate scaling applied)
+
         Notes
         -----
         The predictions are automatically transformed to the correct physical units:
-        - GSMF: Transformed to log10 space
-        - BHMSM: Transformed from log10 to linear space (10**)
+        - GSMF: Transformed to log10 space using delta method
+        - BHMSM: Transformed from log10 to linear space (10**) using delta method
         - Other statistics: Returned as-is
-            
+
         Examples
         --------
         >>> emu = SubgridEmulator('GSMF')
         >>> params = np.array([3.0, 0.5, 0.8, 0.65, 0.1])
-        >>> mean, quantiles = emu.predict(params)
+        >>> mean, std = emu.predict(params)
         """
         if self.model is None:
             raise RuntimeError("Model not loaded. Call _load_model() first.")
-        
+
         # Ensure params is 2D
         params = np.atleast_2d(params)
-        
+
         if params.shape[1] != self.n_params:
             raise ValueError(
                 f"Expected {self.n_params} parameters, got {params.shape[1]}"
             )
-        
-        # Get posterior samples
-        pred_samples = self.model.get_samples(numsamples=num_samples)
-        
-        # Make prediction
+
+        # Get K matrix and scaling factors
+        K = self.model.data.sim_data.K
+        y_sd = self.model.data.sim_data.orig_y_sd
+        y_mean = self.model.data.sim_data.orig_y_mean
+
+        # Get one posterior sample (minimal since we use mu/Sigma directly)
+        pred_samples = self.model.get_samples(numsamples=1)
+
+        # Make prediction with mu and Sigma
         pred = SepiaEmulatorPrediction(
-            t_pred=params, 
-            samples=pred_samples, 
-            model=self.model
+            t_pred=params,
+            samples=pred_samples,
+            model=self.model,
+            storeMuSigma=True
         )
-        
-        # Get prediction samples
-        pred_samps = pred.get_y()
-        
+
+        # K maps latent -> outputs with y = K^T x
+        K_T = K.T
+
+        means = []
+        stds = []
+
+        for i in range(params.shape[0]):
+            mu = pred.mu[i]            # shape [r]
+            Sigma = pred.sigma[i]      # shape [r, r]
+
+            y_mu = K_T @ mu                            # shape [p]
+            y_cov = K_T @ Sigma @ K                    # shape [p, p]
+            y_std = np.sqrt(np.clip(np.diag(y_cov), 0, None))
+
+            # Scale back to original space
+            y_mu = y_sd * y_mu + y_mean
+            y_std = y_sd * y_std
+
+            means.append(y_mu)
+            stds.append(y_std)
+
+        pred_mean = np.array(means).T  # shape [p, n_pred]
+        pred_std = np.array(stds).T    # shape [p, n_pred]
+
         # Apply output transformations based on statistic type
-        # GSMF: emulator outputs linear values, transform to log10
+        # GSMF: emulator outputs linear values, transform to log10 using delta method
         if self.stat_name == 'GSMF':
-            pred_samps = np.log10(pred_samps)
-        # BHMSM: emulator outputs log10 values, transform to linear (10**)
+            # Delta method: for y = log10(x), σ_y = σ_x / (μ_x * ln(10))
+            pred_std = pred_std / (pred_mean * np.log(10))
+            pred_mean = np.log10(pred_mean)
+        # BHMSM: emulator outputs log10 values, transform to linear (10**) using delta method
         elif self.stat_name == 'BHMSM':
-            pred_samps = 10**pred_samps
-        
-        # Calculate statistics
-        pred_mean = np.mean(pred_samps, axis=0).T
-        pred_quantiles = np.quantile(pred_samps, [0.05, 0.95], axis=0).T
-        
+            # Delta method: for y = 10^x, σ_y = σ_x * 10^μ_x * ln(10)
+            pred_std = pred_std * (10**pred_mean) * np.log(10)
+            pred_mean = 10**pred_mean
+
         # Squeeze to remove extra dimensions for single predictions
         if pred_mean.ndim > 1 and pred_mean.shape[1] == 1:
             pred_mean = pred_mean.squeeze()
-            pred_quantiles = pred_quantiles.squeeze()
-        
-        return pred_mean, pred_quantiles
+            pred_std = pred_std.squeeze()
+
+        return pred_mean, pred_std
     
     def __repr__(self):
         return (
@@ -338,7 +363,7 @@ class SubgridEmulator:
 def load_emulator(stat_name, z_index=0, exp_variance=None):
     """
     Convenience function to load an emulator.
-    
+
     Parameters
     ----------
     stat_name : str
@@ -347,17 +372,17 @@ def load_emulator(stat_name, z_index=0, exp_variance=None):
         Redshift index (default: 0)
     exp_variance : float, optional
         Explained variance for PCA
-        
+
     Returns
     -------
     SubgridEmulator
         Loaded emulator ready for predictions
-        
+
     Examples
     --------
     >>> emu = load_emulator('GSMF')
     >>> params = [3.0, 0.5, 0.8, 0.65, 0.1]
-    >>> mean, quantiles = emu.predict(params)
+    >>> mean, std = emu.predict(params)
     """
     return SubgridEmulator(stat_name, z_index, exp_variance)
 

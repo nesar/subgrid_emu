@@ -50,38 +50,36 @@ class TestEmulatorPredictions:
         """Test that 5-parameter predictions have correct shape."""
         emu = load_emulator('GSMF')
         params = [3.0, 0.5, 0.8, 0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
+        mean, std = emu.predict(params)
+
         assert mean.shape[0] > 0
-        assert quantiles.shape[0] == mean.shape[0]
-        assert quantiles.shape[1] == 2  # [5%, 95%]
+        assert std.shape[0] == mean.shape[0]
 
     def test_2p_prediction_shape(self):
         """Test that 2-parameter predictions have correct shape."""
         emu = load_emulator('fGas_2p')
         params = [0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
+        mean, std = emu.predict(params)
+
         assert mean.shape[0] > 0
-        assert quantiles.shape[0] == mean.shape[0]
-        assert quantiles.shape[1] == 2
+        assert std.shape[0] == mean.shape[0]
 
     def test_prediction_values_finite(self):
         """Test that predictions contain finite values."""
         emu = load_emulator('GSMF')
         params = [3.0, 0.5, 0.8, 0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
-        assert np.all(np.isfinite(mean))
-        assert np.all(np.isfinite(quantiles))
+        mean, std = emu.predict(params)
 
-    def test_quantiles_ordered(self):
-        """Test that quantiles are properly ordered (5% < 95%)."""
+        assert np.all(np.isfinite(mean))
+        assert np.all(np.isfinite(std))
+
+    def test_std_positive(self):
+        """Test that standard deviations are positive."""
         emu = load_emulator('GSMF')
         params = [3.0, 0.5, 0.8, 0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
-        assert np.all(quantiles[:, 0] <= quantiles[:, 1])
+        mean, std = emu.predict(params)
+
+        assert np.all(std > 0)
 
     def test_wrong_param_count_5p(self):
         """Test that wrong parameter count raises error for 5-param model."""
@@ -107,9 +105,9 @@ class TestEmulatorPredictions:
             [2.5, 0.7, 1.0, 0.5, 0.5],
             [3.5, 0.3, 0.9, 1.0, 0.2],
         ]
-        
+
         for params in params_list:
-            mean, quantiles = emu.predict(params)
+            mean, std = emu.predict(params)
             assert mean.shape[0] > 0
             assert np.all(np.isfinite(mean))
 
@@ -122,19 +120,19 @@ class TestAllEmulators:
         """Test that all 5-parameter emulators can be loaded and used."""
         emu = load_emulator(stat_name)
         params = [3.0, 0.5, 0.8, 0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
+        mean, std = emu.predict(params)
+
         assert mean.shape[0] > 0
         assert np.all(np.isfinite(mean))
-        assert np.all(np.isfinite(quantiles))
+        assert np.all(np.isfinite(std))
 
     @pytest.mark.parametrize("stat_name", AVAILABLE_STATS_2P)
     def test_all_2p_emulators(self, stat_name):
         """Test that all 2-parameter emulators can be loaded and used."""
         emu = load_emulator(stat_name)
         params = [0.65, 0.1]
-        mean, quantiles = emu.predict(params)
-        
+        mean, std = emu.predict(params)
+
         assert mean.shape[0] > 0
         assert np.all(np.isfinite(mean))
-        assert np.all(np.isfinite(quantiles))
+        assert np.all(np.isfinite(std))
