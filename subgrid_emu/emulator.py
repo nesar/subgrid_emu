@@ -246,9 +246,21 @@ class SubgridEmulator:
                     p.val = np.take(samples[p.name], -1, axis=0)
                     draws = [s for s in samples[p.name]]
                     p.mcmc.draws = draws
-        
+
         self.model = sepia_model
-    
+
+        # Cache constant values for fast predictions
+        self._cache_prediction_constants()
+
+    def _cache_prediction_constants(self):
+        """Cache constant values used in predictions for performance."""
+        self._K = self.model.data.sim_data.K
+        self._K_T = self._K.T
+        self._y_sd = self.model.data.sim_data.orig_y_sd
+        self._y_mean = self.model.data.sim_data.orig_y_mean
+        # Cache one posterior sample (minimal since we use mu/Sigma directly)
+        self._pred_samples = self.model.get_samples(numsamples=1)
+
     def predict(self, params):
         """
         Make predictions for given parameters.
@@ -294,24 +306,13 @@ class SubgridEmulator:
                 f"Expected {self.n_params} parameters, got {params.shape[1]}"
             )
 
-        # Get K matrix and scaling factors
-        K = self.model.data.sim_data.K
-        y_sd = self.model.data.sim_data.orig_y_sd
-        y_mean = self.model.data.sim_data.orig_y_mean
-
-        # Get one posterior sample (minimal since we use mu/Sigma directly)
-        pred_samples = self.model.get_samples(numsamples=1)
-
-        # Make prediction with mu and Sigma
+        # Make prediction with mu and Sigma (using cached samples)
         pred = SepiaEmulatorPrediction(
             t_pred=params,
-            samples=pred_samples,
+            samples=self._pred_samples,
             model=self.model,
             storeMuSigma=True
         )
-
-        # K maps latent -> outputs with y = K^T x
-        K_T = K.T
 
         means = []
         stds = []
@@ -320,13 +321,13 @@ class SubgridEmulator:
             mu = pred.mu[i]            # shape [r]
             Sigma = pred.sigma[i]      # shape [r, r]
 
-            y_mu = K_T @ mu                            # shape [p]
-            y_cov = K_T @ Sigma @ K                    # shape [p, p]
+            y_mu = self._K_T @ mu                            # shape [p]
+            y_cov = self._K_T @ Sigma @ self._K              # shape [p, p]
             y_std = np.sqrt(np.clip(np.diag(y_cov), 0, None))
 
-            # Scale back to original space
-            y_mu = y_sd * y_mu + y_mean
-            y_std = y_sd * y_std
+            # Scale back to original space using cached values
+            y_mu = self._y_sd * y_mu + self._y_mean
+            y_std = self._y_sd * y_std
 
             means.append(y_mu)
             stds.append(y_std)
