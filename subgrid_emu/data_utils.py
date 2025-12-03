@@ -65,6 +65,9 @@ def get_x_grid(stat_name, z_index=0):
     elif stat_name == 'Pk':
         x_label = r'Wavenumber $k$ [$h$/Mpc]'
         
+    elif stat_name == 'Pk_2p':
+        x_label = r'Wavenumber $k$ [$h$/Mpc]'
+        
     elif stat_name == 'CSFR':
         x_label = r'Scale factor $a$'
         
@@ -72,7 +75,7 @@ def get_x_grid(stat_name, z_index=0):
         raise ValueError(
             f"Unknown statistic: {stat_name}\n"
             f"Available: GSMF, BHMSM, fGas, CGD, Pk, CSFR, "
-            f"CGD_2p, fGas_2p"
+            f"CGD_2p, fGas_2p, Pk_2p"
         )
     
     return x_grid, x_label
@@ -144,6 +147,15 @@ def get_plot_info(stat_name):
             'yscale': 'linear'
         }
         
+    elif stat_name == 'Pk_2p':
+        return {
+            'title': 'Total power spectra ratio (2-param)',
+            'xlabel': r'$k \, [h\,\mathrm{Mpc}^{-1}]$',
+            'ylabel': r'$P_{\mathrm{sub}}(k)\,/\,P_{\mathrm{grav}}(k)$',
+            'xscale': 'log',
+            'yscale': 'linear'
+        }
+        
     elif stat_name == 'CSFR':
         return {
             'title': 'Cosmic star formation rate',
@@ -193,6 +205,9 @@ def get_valid_range(stat_name):
         return (0.015, 2.75)
         
     elif stat_name == 'Pk':
+        return (0.04908738521234052, 12.566370614359172)
+        
+    elif stat_name == 'Pk_2p':
         return (0.04908738521234052, 12.566370614359172)
         
     elif stat_name == 'CSFR':

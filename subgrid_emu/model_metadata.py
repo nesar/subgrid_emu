@@ -51,6 +51,11 @@ TRAINING_GRIDS = {
         'n_params': 2,
         'exp_variance': 0.99
     },
+    'Pk_2p': {
+        'y_ind': None,  # Loaded from data files (510 k-points after masking)
+        'n_params': 2,
+        'exp_variance': 0.9999
+    },
 }
 
 
