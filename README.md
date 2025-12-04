@@ -149,8 +149,8 @@ mean, quantiles = emu.predict(params_2p)
 ```
 
 The suite includes 2 summary statistics from larger simulations. 
-<img width="1384" height="484" alt="output2" src="https://github.com/user-attachments/assets/0e46409f-da28-4479-842a-5e896b6e44ce" />
 
+<img width="2084" height="484" alt="download_2p" src="https://github.com/user-attachments/assets/420d089e-1b1c-4806-9af8-b5eb3ccdc906" />
 
 
 ## API Reference
