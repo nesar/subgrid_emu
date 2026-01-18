@@ -34,7 +34,7 @@ TRAINING_GRIDS = {
     'Pk': {
         'y_ind': None,  # Loaded from data files (255 k-points after masking)
         'n_params': 5,
-        'exp_variance': 0.95
+        'exp_variance': 0.9999
     },
     'CSFR': {
         'y_ind': np.linspace(0.1, 1.0, 655),  # scale factor

@@ -19,6 +19,7 @@ except ImportError:
 from sepia.SepiaModel import SepiaModel
 from sepia.SepiaData import SepiaData
 from sepia.SepiaPredict import SepiaEmulatorPrediction
+from .model_metadata import get_training_grid
 
 
 # Physical parameter scaling factors
@@ -151,25 +152,28 @@ class SubgridEmulator:
         self.stat_name = stat_name
         self.z_index = z_index
         
-        # Determine number of parameters and default variance
-        if stat_name in AVAILABLE_STATS_2P:
-            self.n_params = 2
-            if exp_variance is None:
-                if stat_name == 'Pk_2p':
-                    exp_variance = 0.9999
-                else:
-                    exp_variance = 0.95
-        elif stat_name in AVAILABLE_STATS_5P:
-            self.n_params = 5
-            if exp_variance is None:
-                exp_variance = 0.95
-        else:
+        # Check if statistic is available
+        if stat_name not in AVAILABLE_STATS_2P + AVAILABLE_STATS_5P:
             raise ValueError(
                 f"Unknown statistic: {stat_name}\n"
                 f"Available: {AVAILABLE_STATS_5P + AVAILABLE_STATS_2P}"
             )
         
-        self.exp_variance = exp_variance
+        # Get metadata from model_metadata.py
+        try:
+            metadata = get_training_grid(stat_name)
+            self.n_params = metadata['n_params']
+            # Use provided exp_variance or default from metadata
+            self.exp_variance = exp_variance if exp_variance is not None else metadata['exp_variance']
+        except ValueError:
+            # Fallback for statistics not in metadata (shouldn't happen for standard stats)
+            if stat_name in AVAILABLE_STATS_2P:
+                self.n_params = 2
+                self.exp_variance = exp_variance if exp_variance is not None else 0.99
+            else:
+                self.n_params = 5
+                self.exp_variance = exp_variance if exp_variance is not None else 0.95
+        
         self.model = None
         self._load_model()
     
