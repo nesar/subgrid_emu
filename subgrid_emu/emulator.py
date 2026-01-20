@@ -21,6 +21,8 @@ from sepia.SepiaData import SepiaData
 from sepia.SepiaPredict import SepiaEmulatorPrediction
 from .model_metadata import get_training_grid
 
+# No patch needed - we'll handle 2p models differently
+
 
 # Physical parameter scaling factors
 SEED_MASS_SCALE = 1e6
@@ -204,8 +206,33 @@ class SubgridEmulator:
         y_vals = np.load(y_vals_path)
         y_ind = np.load(y_ind_path)
         
-        # Create SepiaData with the actual training data structure
-        sepia_data = _sepia_data_format(params, y_vals, y_ind)
+        # Special handling for 2p models - they were trained with observational data
+        if self.stat_name in AVAILABLE_STATS_2P:
+            # Create dummy observational data to match training structure
+            n_obs = y_vals.shape[1]  # Number of y values
+            n_sim = params.shape[0]
+            
+            # Create dummy x_sim (single column of zeros)
+            x_sim = np.zeros((n_sim, 1))
+            
+            # Create dummy observational data - single observation
+            # Reshape y_obs to be (1, n_obs) to match x_obs shape (1, 1)
+            y_obs = np.mean(y_vals, axis=0).reshape(1, -1)
+            x_obs = np.array([[0.5]])  # Single observational parameter
+            
+            # Create SepiaData with both x_sim and x_obs
+            sepia_data = SepiaData(
+                x_sim=x_sim,
+                t_sim=params,
+                y_sim=y_vals,
+                y_ind_sim=y_ind,
+                x_obs=x_obs,
+                y_obs=y_obs,
+                y_ind_obs=y_ind
+            )
+        else:
+            # Create SepiaData normally for 5p models
+            sepia_data = _sepia_data_format(params, y_vals, y_ind)
         
         # Perform PCA (this recreates the basis used during training)
         sepia_model = _do_pca(sepia_data, exp_variance=self.exp_variance)
