@@ -44,12 +44,12 @@ TRAINING_GRIDS = {
     'CGD_2p': {
         'y_ind': 10**np.linspace(-2, 0.5, 21)[1:],  # radius (skip first)
         'n_params': 2,
-        'exp_variance': 0.99
+        'exp_variance': 0.95
     },
     'fGas_2p': {
         'y_ind': np.logspace(13.5, 14.5, 40),  # halo mass
         'n_params': 2,
-        'exp_variance': 0.99
+        'exp_variance': 0.95
     },
     'Pk_2p': {
         'y_ind': None,  # Loaded from data files (510 k-points after masking)

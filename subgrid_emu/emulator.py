@@ -8,7 +8,6 @@ for various cosmological summary statistics.
 import numpy as np
 import os
 import sys
-import warnings
 from io import StringIO
 try:
     # Python 3.9+
@@ -20,8 +19,6 @@ from sepia.SepiaModel import SepiaModel
 from sepia.SepiaData import SepiaData
 from sepia.SepiaPredict import SepiaEmulatorPrediction
 from .model_metadata import get_training_grid
-
-# No patch needed - we'll handle 2p models differently
 
 
 # Physical parameter scaling factors
@@ -182,15 +179,15 @@ class SubgridEmulator:
     def _load_model(self):
         """Load the trained model from disk."""
         model_path = get_model_path(self.stat_name, self.z_index)
-        
+
         # Load the training data that was used to create this model
         data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
         base_name = f"{self.stat_name}_z_index{self.z_index}"
-        
+
         params_path = os.path.join(data_dir, f"{base_name}_params.npy")
         y_vals_path = os.path.join(data_dir, f"{base_name}_y_vals.npy")
         y_ind_path = os.path.join(data_dir, f"{base_name}_y_ind.npy")
-        
+
         # Check if training data exists
         if not all(os.path.exists(p) for p in [params_path, y_vals_path, y_ind_path]):
             raise FileNotFoundError(
@@ -200,86 +197,28 @@ class SubgridEmulator:
                 f"  - {base_name}_y_vals.npy\n"
                 f"  - {base_name}_y_ind.npy"
             )
-        
+
         # Load training data
         params = np.load(params_path)
         y_vals = np.load(y_vals_path)
         y_ind = np.load(y_ind_path)
-        
-        # Special handling for 2p models - they were trained with observational data
-        if self.stat_name in AVAILABLE_STATS_2P:
-            # Create dummy observational data to match training structure
-            n_obs = y_vals.shape[1]  # Number of y values
-            n_sim = params.shape[0]
-            
-            # Create dummy x_sim (single column of zeros)
-            x_sim = np.zeros((n_sim, 1))
-            
-            # Create dummy observational data - single observation
-            # Reshape y_obs to be (1, n_obs) to match x_obs shape (1, 1)
-            y_obs = np.mean(y_vals, axis=0).reshape(1, -1)
-            x_obs = np.array([[0.5]])  # Single observational parameter
-            
-            # Create SepiaData with both x_sim and x_obs
-            sepia_data = SepiaData(
-                x_sim=x_sim,
-                t_sim=params,
-                y_sim=y_vals,
-                y_ind_sim=y_ind,
-                x_obs=x_obs,
-                y_obs=y_obs,
-                y_ind_obs=y_ind
-            )
-        else:
-            # Create SepiaData normally for 5p models
-            sepia_data = _sepia_data_format(params, y_vals, y_ind)
-        
+
+        # Create SepiaData (simulation-only for both 5p and 2p models)
+        sepia_data = _sepia_data_format(params, y_vals, y_ind)
+
         # Perform PCA (this recreates the basis used during training)
         sepia_model = _do_pca(sepia_data, exp_variance=self.exp_variance)
-        
+
         # Load the trained model parameters
-        # restore_model_info expects the path without the .pkl extension
         model_path_base = model_path.replace('.pkl', '')
-        
-        # Use the standard SEPIA restore method
-        # This works for all models when the PCA is done with the correct exp_variance
-        # Suppress the warning about model instantiation (SEPIA uses print, not warnings)
+
+        # Suppress SEPIA's print-based warnings during restore
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
         try:
-            # Redirect stdout to suppress print statements
-            old_stdout = sys.stdout
-            sys.stdout = StringIO()
-            try:
-                sepia_model.restore_model_info(model_path_base)
-            finally:
-                sys.stdout = old_stdout
-        except IndexError as e:
-            # If we get an IndexError during restore (SEPIA bug with single PCA component),
-            # manually load the model parameters
-            import pickle
-            with open(model_path, 'rb') as f:
-                model_data = pickle.load(f)
-            
-            samples = model_data['samples']
-            param_info = model_data['param_info']
-            
-            # Restore parameter information (excluding logPost)
-            for p in sepia_model.params:
-                if p.name in param_info and p.name != 'logPost':
-                    info = param_info[p.name]
-                    p.fixed = info['fixed']
-                    p.prior.bounds = info['prior_bounds']
-                    p.prior.fcon = info['prior_fcon']
-                    p.prior.dist = info['prior_dist']
-                    p.prior.params = info['prior_params']
-                    p.mcmc.stepParam = info['mcmc_stepParam']
-                    p.mcmc.stepType = info['mcmc_stepType']
-            
-            # Put samples and current values back
-            for p in sepia_model.params:
-                if p.name in samples:
-                    p.val = np.take(samples[p.name], -1, axis=0)
-                    draws = [s for s in samples[p.name]]
-                    p.mcmc.draws = draws
+            sepia_model.restore_model_info(model_path_base)
+        finally:
+            sys.stdout = old_stdout
 
         self.model = sepia_model
 
