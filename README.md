@@ -163,7 +163,7 @@ Load an emulator for a specific summary statistic.
 **Parameters:**
 - `stat_name` (str): Name of the summary statistic
 - `z_index` (int): Redshift index (default: 0 for z=0)
-- `exp_variance` (float): Explained variance for PCA (default: 0.95 for 5-param, 0.99 for 2-param)
+- `exp_variance` (float): Explained variance for PCA (uses per-statistic defaults from metadata)
 
 **Returns:**
 - `SubgridEmulator`: Loaded emulator object
